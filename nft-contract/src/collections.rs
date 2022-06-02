@@ -10,7 +10,7 @@ impl NFTContract {
         market_fee: f32,
         data: CollectionExtraData,
     ) -> Collection {
-        let collection_id = self.collection_id_counter;
+        let collection_id = self.collections_by_id.len() as u32;
 
         let owner_id = env::predecessor_account_id();
 
@@ -50,9 +50,6 @@ impl NFTContract {
         // Insert collection mới vào collections_by_id
         self.collections_by_id
             .insert(&collection_id, &new_collection);
-
-        // Tăng collection_id_counter lên 1 đơn vị
-        self.collection_id_counter += 1;
 
         new_collection
     }

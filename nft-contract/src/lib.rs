@@ -38,9 +38,9 @@ pub struct NFTContract {
     pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>, // Mapping token id với token metadata
     pub metadata: LazyOption<NFTContractMetadata>,
     pub collection_id_counter: CollectionId, // Bộ đếm id cho Collection
-    pub schema_id_counter: SchemaId, // Bộ đếm id cho Schema
-    pub template_id_counter: TemplateId, // Bộ đếm id cho Template
-    pub token_id_counter: TokenId, // Bộ đếm id cho NFT
+    // pub schema_id_counter: SchemaId, // Bộ đếm id cho Schema
+    // pub template_id_counter: TemplateId, // Bộ đếm id cho Template
+    // pub token_id_counter: TokenId, // Bộ đếm id cho NFT
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
@@ -78,9 +78,9 @@ impl NFTContract {
                 Some(&token_metadata),
             ),
             collection_id_counter: 1,
-            schema_id_counter: 1,
-            template_id_counter: 1,
-            token_id_counter: 1,
+            // schema_id_counter: 1,
+            // template_id_counter: 1,
+            // token_id_counter: 1,
         }
     }
 

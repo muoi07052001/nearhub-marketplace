@@ -24,8 +24,9 @@ pub struct CollectionExtraData {
 pub struct Schema {
     // pub authorized_creator: String,       // Tên người tạo Schema (owner của collection_name)
     pub schema_id: SchemaId,              // Id của Schema
-    pub collection_name: String,          // Collection mà Schema thuộc vào
     pub schema_name: String,              // Tên của Schema
+    pub collection_id: CollectionId,      // Id của Collection mà Schme thuộc vào
+    pub collection_name: String,          // Collection mà Schema thuộc vào
     pub schema_format: Vec<SchemaFormat>, // Mảng các thuộc tính của Schema
 }
 
@@ -41,7 +42,9 @@ pub struct SchemaFormat {
 #[serde(crate = "near_sdk::serde")]
 pub struct Template {
     pub template_id: TemplateId,       // Id của Template
+    pub collection_id: CollectionId,   // Id của Collection mà Template thuộc vào
     pub collection_name: String,       // Tên Collection mà Template thuộc vào
+    pub schema_id: SchemaId,           // Id của Schema mà Template thuộc vào
     pub schema_name: String,           // Tên Schema mà Template thuộc vào
     pub transferable: bool,            // NFT có thể bị transfer không
     pub burnable: bool,                // NFT có thể bị burn không

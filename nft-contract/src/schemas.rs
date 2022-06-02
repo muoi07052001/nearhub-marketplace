@@ -10,7 +10,7 @@ impl NFTContract {
         schema_name: String,
         schema_format: Vec<SchemaFormat>,
     ) -> Schema {
-        let schema_id = self.schema_id_counter;
+        let schema_id = self.schemas_by_id.len() as u32;
 
         // Check schema_id đã tồn tại chưa
         assert!(
@@ -26,16 +26,14 @@ impl NFTContract {
         // Tạo collection mới
         let new_schema = Schema {
             schema_id,
-            collection_name: collection_of_schema_name,
             schema_name,
+            collection_name: collection_of_schema_name,
+            collection_id,
             schema_format,
         };
 
         // Insert schema mới vào schemas_by_id
         self.schemas_by_id.insert(&schema_id, &new_schema);
-
-        // Tăng schema_id_counter lên 1 đơn vị
-        self.schema_id_counter += 1;
 
         new_schema
     }
@@ -48,10 +46,8 @@ impl NFTContract {
 
     // Lấy tổng số Schemas đang có của Collection nào đó
     pub fn schema_supply_by_collection(&self, collection_id: CollectionId) -> U128 {
-        let collection = self
-            .collections_by_id
-            .get(&collection_id)
-            .expect("Collection does not exist");
+        // Check collection id có tồn tại không
+        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
 
         let mut count = 0;
 
@@ -62,7 +58,7 @@ impl NFTContract {
             .collect();
 
         for schema in schemas_set_by_collection {
-            if schema.collection_name == collection.collection_name {
+            if schema.collection_id == collection_id {
                 count += 1;
             }
         }
@@ -91,10 +87,8 @@ impl NFTContract {
         from_index: Option<U128>,
         limit: Option<u64>,
     ) -> Vec<Schema> {
-        let collection = self
-            .collections_by_id
-            .get(&collection_id)
-            .expect("Collection does not exist");
+        // Check collection id có tồn tại không
+        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
 
         let start = u128::from(from_index.unwrap_or(U128(0)));
 
@@ -110,7 +104,7 @@ impl NFTContract {
             .collect();
 
         for schema in schemas_set_for_owner {
-            if schema.collection_name == collection.collection_name {
+            if schema.collection_id == collection_id {
                 result.push(schema);
             }
         }

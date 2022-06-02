@@ -14,7 +14,7 @@ impl NFTContract {
         issued_supply: u32,
         immutable_data: ImmutableData,
     ) -> Template {
-        let template_id = self.template_id_counter;
+        let template_id = self.templates_by_id.len() as u32;
 
         // Check template_id đã tồn tại chưa
         assert!(
@@ -38,7 +38,9 @@ impl NFTContract {
         // Tạo Template mới
         let new_template = Template {
             template_id,
+            collection_id,
             collection_name: collection_of_template_name,
+            schema_id,
             schema_name: schema_of_template_name,
             transferable,
             burnable,
@@ -49,9 +51,6 @@ impl NFTContract {
 
         // Insert template mới vào templates_by_id
         self.templates_by_id.insert(&template_id, &new_template);
-
-        // Tăng template_id_counter lên 1 đơn vị
-        self.template_id_counter += 1;
 
         new_template
     }
@@ -64,10 +63,8 @@ impl NFTContract {
 
     // Lấy tổng số Templates đang có của Collection nào đó
     pub fn template_supply_by_collection(&self, collection_id: CollectionId) -> U128 {
-        let collection = self
-            .collections_by_id
-            .get(&collection_id)
-            .expect("Collection does not exist");
+        // Check collection id có tồn tại không
+        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
 
         let mut count = 0;
 
@@ -78,7 +75,7 @@ impl NFTContract {
             .collect();
 
         for template in templates_set_by_collection {
-            if template.collection_name == collection.collection_name {
+            if template.collection_id == collection_id {
                 count += 1;
             }
         }
@@ -106,10 +103,8 @@ impl NFTContract {
         from_index: Option<U128>,
         limit: Option<u64>,
     ) -> Vec<Template> {
-        let collection = self
-            .collections_by_id
-            .get(&collection_id)
-            .expect("Collection does not exist");
+        // Check collection id có tồn tại không
+        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
 
         let start = u128::from(from_index.unwrap_or(U128(0)));
 
@@ -125,7 +120,7 @@ impl NFTContract {
             .collect();
 
         for template in templates_set_for_owner {
-            if template.collection_name == collection.collection_name {
+            if template.collection_id == collection_id {
                 result.push(template);
             }
         }
