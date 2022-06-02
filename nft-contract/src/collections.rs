@@ -6,15 +6,13 @@ impl NFTContract {
     // Tạo 1 Collection mới
     pub fn create_collection(
         &mut self,
-        owner_id: AccountId,
         collection_name: String,
         market_fee: f32,
         data: CollectionExtraData,
     ) -> Collection {
         let collection_id = self.collection_id_counter;
 
-        // Check owner_id phải trùng với người gọi hàm
-        assert_eq!(owner_id, env::predecessor_account_id(), "Only the owner of the Collection can create a new Collection");
+        let owner_id = env::predecessor_account_id();
 
         // Check collection_id đã tồn tại chưa
         assert!(

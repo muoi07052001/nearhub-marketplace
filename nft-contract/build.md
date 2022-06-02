@@ -22,7 +22,7 @@
 2. Create a Collection:
 
    ```
-   near call dev-1654155145461-74111774846753 create_collection '{"owner_id": "duongnh.testnet", "collection_name": "Game", "market_fee": 5.0, "data": {"name": "Zuong game", "img": ""}}' --accountId duongnh.testnet
+   near call dev-1654155145461-74111774846753 create_collection '{"collection_name": "Game", "market_fee": 5.0, "data": {"name": "Zuong game", "img": ""}}' --accountId duongnh.testnet
    ```
 
 3. View the total number of Collections of the Contract:
