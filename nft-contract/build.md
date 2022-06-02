@@ -1,0 +1,138 @@
+# How to build and test this contract
+
+1. Create nft_contract_id -> deploy out/nft-contract.wasm to nft_contract_id (`nearhub.nft.duongnh.testnet`)
+
+   ```
+   - ./build.sh
+   - cd ..
+   - near create-account nearhub.nft.duongnh.testnet --masterAccount nft.duongnh.testnet --initialBalance 20
+   - near deploy --wasmFile out/nft-contract.wasm --accountId nearhub.nft.duongnh.testnet --initFunction new_default_metadata --initArgs '{"owner_id": "duongnh.testnet"}'
+   ```
+
+---
+
+### Init contract
+
+   ```
+   near call dev-1654155145461-74111774846753 new_default_metadata '{"owner_id": "duongnh.testnet"}' --accountId duongnh.testnet
+   ```
+
+### Collection
+
+2. Create a Collection:
+
+   ```
+   near call dev-1654155145461-74111774846753 create_collection '{"owner_id": "duongnh.testnet", "collection_name": "Game", "market_fee": 5.0, "data": {"name": "Zuong game", "img": ""}}' --accountId duongnh.testnet
+   ```
+
+3. View the total number of Collections of the Contract:
+
+   ```
+   near view dev-1654155145461-74111774846753 collection_total_supply
+   ```
+
+4. View the total number of Collections for a account: `duongnh.testnet`
+
+   ```
+   near view dev-1654155145461-74111774846753 collection_supply_for_owner '{"account_id": "duongnh.testnet"}'
+   ```
+
+5. View list of Collections (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
+
+   ```
+   near view dev-1654155145461-74111774846753 get_all_collections '{"from_index": "0", "limit": 10}'
+   ```
+
+6. View list of Collections (with pagination) of 1 account: `duongnh.testnet` (`from_index`: String, `limit`: integer)
+
+   ```
+   near view dev-1654155145461-74111774846753 get_all_collections_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
+   ```
+
+7. Search Collection by collection id
+   ```
+   near view dev-1654155145461-74111774846753 get_collection_by_id '{"collection_id": 1}'
+   ```
+
+8. View list of Collections by Collection Name (All the Collections that has Name contains the `search_string`)
+    ```
+    near view dev-1654155145461-74111774846753 get_collections_by_name '{"search_string": "Wea"}'
+    ```
+
+---
+
+### Schema
+
+7. Create a Schema:
+
+   ```
+   near call dev-1654155145461-74111774846753 create_schema '{"collection_id": 1, "schema_name": "Weapon", "schema_format": [{"attribute_name": "name", "attribute_type": "string"}]}' --accountId duongnh.testnet
+   ```
+
+8. View the total number of Schemas of the Contract:
+
+   ```
+   near view dev-1654155145461-74111774846753 schema_total_supply
+   ```
+
+9. View the total number of Schemas of a Collection:
+
+   ```
+   near view dev-1654155145461-74111774846753 schema_supply_by_collection '{"collection_id": 1}'
+   ```
+
+10. View list of Schemas (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
+
+    ```
+    near view dev-1654155145461-74111774846753 get_all_schemas '{"from_index": "0", "limit": 10}'
+    ```
+
+11. View list of Schemas (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
+
+    ```
+    near view dev-1654155145461-74111774846753 get_all_schemas_by_collection '{"collection_id": 1, "from_index": "0", "limit": 10}'
+    ```
+
+12. View list of Schemas by Schema Name (All the Schemas that has Name contains the `search_string`)
+    ```
+    near view dev-1654155145461-74111774846753 get_schemas_by_name '{"search_string": "Wea"}'
+    ```
+
+---
+
+### Template
+
+7. Create a Template:
+
+   ```
+   near call dev-1654155145461-74111774846753 create_template '{"collection_id": 1, "schema_id": 1, "transferable": true, "burnable": true, "max_supply": 10, "issued_supply": 3, "immutable_data": {"name": "Lightsaber", "img": ""}}' --accountId duongnh.testnet
+   ```
+
+8. View the total number of Templates of the Contract:
+
+   ```
+   near view dev-1654155145461-74111774846753 template_total_supply
+   ```
+
+9. View the total number of Templates of a Collection:
+
+   ```
+   near view dev-1654155145461-74111774846753 template_supply_by_collection '{"collection_id": 1}'
+   ```
+
+10. View list of Templates (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
+
+    ```
+    near view dev-1654155145461-74111774846753 get_all_templates '{"from_index": "0", "limit": 10}'
+    ```
+
+11. View list of Templates (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
+
+    ```
+    near view dev-1654155145461-74111774846753 get_all_templates_by_collection '{"collection_id": 2, "from_index": "0", "limit": 10}'
+    ```
+
+12. Get Template by Template Id
+    ```
+    near view dev-1654155145461-74111774846753 get_template_by_id '{"template_id": 1}'
+    ```
