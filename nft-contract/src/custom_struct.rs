@@ -56,7 +56,7 @@ pub struct Template {
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct ImmutableData {
-    pub name: String, // Tên của Template
-    pub img: Option<String>,
-    // TODO: ImmutableData chứa tất cả các trường T của Schema, nhưng các trường có thể Option<T>
+    pub name: String,                           // Tên của Template
+    pub img: Option<String>,                    // Link tới ảnh của Template
+    pub extra_immutable_data: Option<String>,   // String dạng Json chứa các thông tin fix dựa theo Schema gửi từ Front-end lên
 }
