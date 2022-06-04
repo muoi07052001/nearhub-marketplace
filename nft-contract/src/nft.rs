@@ -48,7 +48,7 @@ impl NFTContract {
             .templates_by_id
             .get(&template_id)
             .expect("Template does not exists");
-        let _template_name = template.schema_name;
+        let _template_name = template.schema_name.clone();
 
         // Check xem schema_id đó có thuộc collection_id đó không
         assert_eq!(
@@ -57,7 +57,7 @@ impl NFTContract {
         );
         // Check xem template_id đó có thuộc schema_id đó không
         assert_eq!(
-            template.collection_name, schema_name,
+            template.schema_name, schema_name,
             "Template does not belongs to this schema"
         );
 
