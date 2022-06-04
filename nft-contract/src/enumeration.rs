@@ -19,7 +19,9 @@ impl NFTContract {
             Some(JsonToken {
                 owner_id: token.owner_id,
                 token_id,
+                collection_id: token.collection_id,
                 collection_name: token.collection_name,
+                schema_id: token.schema_id,
                 schema_name: token.schema_name,
                 template_id: token.template_id,
                 metadata,
