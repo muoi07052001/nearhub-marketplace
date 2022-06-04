@@ -58,5 +58,5 @@ pub struct Template {
 pub struct ImmutableData {
     pub name: String,                           // Tên của Template
     pub img: Option<String>,                    // Link tới ảnh của Template
-    pub extra_immutable_data: Option<String>,   // String dạng Json chứa các thông tin fix dựa theo Schema gửi từ Front-end lên
+    pub extra_immutable_data: Option<String>,   // Stringified JSON chứa các thông tin fix sẵn dựa theo Schema gửi từ Front-end lên
 }
