@@ -11,7 +11,6 @@ pub type TemplateId = u32;
 pub type TokenId = u32;
 
 pub use crate::custom_struct::*;
-pub use crate::enumeration::*;
 pub use crate::metadata::*;
 pub use crate::collections::*;
 pub use crate::schemas::*;
@@ -21,7 +20,6 @@ pub use crate::nft::*;
 pub use crate::internal::*;
 
 mod custom_struct;
-mod enumeration;
 mod metadata;
 mod collections;
 mod schemas;

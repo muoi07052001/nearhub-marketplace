@@ -154,3 +154,15 @@
    ```
    near view dev-1654311163374-36226532432210 nft_total_supply
    ```
+
+24. View total NFT supply of an account `duongnh.testnet`
+
+   ```
+   near view dev-1654311163374-36226532432210 nft_supply_for_owner '{"account_id": "duongnh.testnet"}'
+   ```
+
+25. View list of NFTs of an account `duongnh.testnet`
+
+   ```
+   near view dev-1654311163374-36226532432210 nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
+   ```
