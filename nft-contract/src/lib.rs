@@ -2,13 +2,14 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, near_bindgen, AccountId, PanicOnDefault, CryptoHash, Balance, Promise};
+use near_sdk::{env, near_bindgen, AccountId, PanicOnDefault, CryptoHash, Balance, Promise, serde_json};
 use std::collections::HashMap;
 
 pub type CollectionId = u32;
 pub type SchemaId = u32;
 pub type TemplateId = u32;
 pub type TokenId = u32;
+pub type LootboxId = u32;
 
 pub use crate::custom_struct::*;
 pub use crate::metadata::*;
@@ -18,6 +19,7 @@ pub use crate::templates::*;
 use crate::utils::*;
 pub use crate::nft::*;
 pub use crate::internal::*;
+pub use crate::lootbox::*;
 
 mod custom_struct;
 mod metadata;
@@ -27,6 +29,7 @@ mod templates;
 mod utils;
 mod nft;
 mod internal;
+mod lootbox;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -38,9 +41,9 @@ pub struct NFTContract {
     pub schemas_by_id: UnorderedMap<SchemaId, Schema>, // Danh sách tất cả Schemas của Contract
     pub templates_by_id: UnorderedMap<TemplateId, Template>, // Danh sách tất cả Templates của Contract
     pub tokens_by_id: UnorderedMap<TokenId, Token>, // Danh sách tất cả NFT Tokens của Contract
+    pub lootboxes_by_id: UnorderedMap<LootboxId, Lootbox>, // Danh sách tất cả Lootboxs của Contract
     pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>, // Mapping token id với token metadata
     pub metadata: LazyOption<NFTContractMetadata>,
-    pub collection_id_counter: CollectionId, // Bộ đếm id cho Collection
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
@@ -57,6 +60,7 @@ pub enum StorageKey {
     SchemasByIdKey,
     TemplatesByIdKey,
     TokensByIdKey,
+    LootboxesByIdKey,
     TokenMetadataByIdKey,
     ContractMetadataKey,
 }
@@ -77,6 +81,7 @@ impl NFTContract {
             schemas_by_id: UnorderedMap::new(StorageKey::SchemasByIdKey.try_to_vec().unwrap()),
             templates_by_id: UnorderedMap::new(StorageKey::TemplatesByIdKey.try_to_vec().unwrap()),
             tokens_by_id: UnorderedMap::new(StorageKey::TokensByIdKey.try_to_vec().unwrap()),
+            lootboxes_by_id: UnorderedMap::new(StorageKey::LootboxesByIdKey.try_to_vec().unwrap()),
             token_metadata_by_id: UnorderedMap::new(
                 StorageKey::TokenMetadataByIdKey.try_to_vec().unwrap(),
             ),
@@ -84,7 +89,6 @@ impl NFTContract {
                 StorageKey::ContractMetadataKey.try_to_vec().unwrap(),
                 Some(&token_metadata),
             ),
-            collection_id_counter: 1,
         }
     }
 

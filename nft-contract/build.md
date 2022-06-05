@@ -5,8 +5,8 @@
    ```
    - ./build.sh
    - cd ..
-   - near create-account nearhub.nft.duongnh.testnet --masterAccount nft.duongnh.testnet --initialBalance 20
-   - near deploy --wasmFile out/nft-contract.wasm --accountId nearhub.nft.duongnh.testnet --initFunction new_default_metadata --initArgs '{"owner_id": "duongnh.testnet"}'
+   - near create-account nearhub.duongnh.testnet --masterAccount duongnh.testnet --initialBalance 20
+   - near deploy --wasmFile out/nft-contract.wasm --accountId nearhub.duongnh.testnet --initFunction new_default_metadata --initArgs '{"owner_id": "duongnh.testnet"}'
    ```
 
 ---
@@ -165,4 +165,10 @@
 
    ```
    near view nearhub.duongnh.tesestnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
+   ```
+
+## Lootbox
+26. Create a Lootbox: (Belongs to a Collection)
+   ```
+   near call nearhub.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_id": 0, "unlock_time": 0, "display_data": "", "config": {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}}' --accountId duongnh.testnet
    ```

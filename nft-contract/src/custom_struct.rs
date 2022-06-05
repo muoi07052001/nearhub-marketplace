@@ -56,7 +56,35 @@ pub struct Template {
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct ImmutableData {
-    pub name: String,                           // Tên của Template
-    pub img: Option<String>,                    // Link tới ảnh của Template
-    pub extra_immutable_data: Option<String>,   // Stringified JSON chứa các thông tin fix sẵn dựa theo Schema gửi từ Front-end lên
+    pub name: String,                         // Tên của Template
+    pub img: Option<String>,                  // Link tới ảnh của Template
+    pub extra_immutable_data: Option<String>, // Stringified JSON chứa các thông tin fix sẵn dựa theo Schema gửi từ Front-end lên
+}
+
+// ----------------------------------- Lootbox Struct -----------------------------------
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct Lootbox {
+    pub lootbox_id: LootboxId,        // Id của Lootbox
+    pub lootbox_name: String,         // Tên của Lootbox
+    pub description: String,          // Description của Lootbox
+    pub collection_id: CollectionId,  // Id của Collection mà Lootbox thuộc vào
+    pub collection_name: String,      // Collection mà Lootbox thuộc vào
+    pub unlock_time: Option<u32>,     // Thời điểm cho phép mở Lootbox
+    pub display_data: Option<String>, // Dữ liệu cần thiết hiển thị cho Front-end (stringified JSON)
+    pub config: LootboxConfig,        // Config độ random để ra các loại NFT
+}
+
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct LootboxConfig {
+    pub total_odds: u32,        // Giới hạn trên của số random
+    pub outcomes: Vec<Outcome>, // Mảng config: Template A tỉ lệ bn, Template B tỉ lệ bn
+}
+
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct Outcome {
+    pub template_id: TemplateId, // Tỷ lệ roll ra template id nào
+    pub odds: u32,               // Trong khoảng (a, odds) thì roll ra template_id này
 }
