@@ -13,9 +13,9 @@
 
 ### Init contract
 
-   ```
-   near call nearhub.duongnh.testnet new_default_metadata '{"owner_id": "duongnh.testnet"}' --accountId duongnh.testnet
-   ```
+```
+near call nearhub.duongnh.testnet new_default_metadata '{"owner_id": "duongnh.testnet"}' --accountId duongnh.testnet
+```
 
 ### Collection
 
@@ -50,14 +50,15 @@
    ```
 
 7. Search Collection by collection id
+
    ```
    near view nearhub.duongnh.testnet get_collection_by_id '{"collection_id": 0}'
    ```
 
 8. View list of Collections by Collection Name (All the Collections that has Name contains the `search_string`)
-    ```
-    near view nearhub.duongnh.testnet get_collections_by_name '{"search_string": "GA"}'
-    ```
+   ```
+   near view nearhub.duongnh.testnet get_collections_by_name '{"search_string": "GA"}'
+   ```
 
 ---
 
@@ -71,15 +72,15 @@
 
 10. View the total number of Schemas of the Contract:
 
-   ```
-   near view nearhub.duongnh.testnet schema_total_supply
-   ```
+```
+near view nearhub.duongnh.testnet schema_total_supply
+```
 
 11. View the total number of Schemas of a Collection:
 
-   ```
-   near view nearhub.duongnh.testnet schema_supply_by_collection '{"collection_id": 0}'
-   ```
+```
+near view nearhub.duongnh.testnet schema_supply_by_collection '{"collection_id": 0}'
+```
 
 12. View list of Schemas (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
 
@@ -104,71 +105,100 @@
 
 15. Create a Template:
 
-   ```
-   near call nearhub.duongnh.testnet create_template '{"collection_id": 0, "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "issued_supply": 3, "immutable_data": {"name": "Lightsaber", "img": "", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --accountId duongnh.testnet
-   ```
+```
+near call nearhub.duongnh.testnet create_template '{"collection_id": 0, "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "issued_supply": 3, "immutable_data": {"name": "Lightsaber", "img": "", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --accountId duongnh.testnet
+```
 
 16. View the total number of Templates of the Contract:
 
-   ```
-   near view nearhub.duongnh.testnet template_total_supply
-   ```
+```
+near view nearhub.duongnh.testnet template_total_supply
+```
 
 17. View the total number of Templates of a Collection:
 
-   ```
-   near view nearhub.duongnh.testnet template_supply_by_collection '{"collection_id": 0}'
-   ```
+```
+near view nearhub.duongnh.testnet template_supply_by_collection '{"collection_id": 0}'
+```
 
 18. View list of Templates (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
 
-    ```
-    near view nearhub.duongnh.testnet get_all_templates '{"from_index": "0", "limit": 10}'
-    ```
+```
+near view nearhub.duongnh.testnet get_all_templates '{"from_index": "0", "limit": 10}'
+```
 
 19. View list of Templates (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
 
-    ```
-    near view nearhub.duongnh.testnet get_all_templates_by_collection '{"collection_id": 0, "from_index": "0", "limit": 10}'
-    ```
+```
+near view nearhub.duongnh.testnet get_all_templates_by_collection '{"collection_id": 0, "from_index": "0", "limit": 10}'
+```
 
 20. Get Template by Template Id
-    ```
-    near view nearhub.duongnh.testnet get_template_by_id '{"template_id": 0}'
-    ```
+
+```
+near view nearhub.duongnh.testnet get_template_by_id '{"template_id": 0}'
+```
 
 ## NFT
+
 21. Mint an NFT:
-   ```
-   near call nearhub.duongnh.testnet nft_mint '{"collection_id": 0, "schema_id": 0, "template_id": 0, "metadata":{"title": "ZUONG SABER", "description": "Zuong saber", "media": "https://bafkreibhsxpr4qbjqure75n6q6ywulozmb6e2tnedloq6v5em24f6nhmgm.ipfs.dweb.link/"}, "receiver_id": "duongnh.testnet"}' --deposit 0.1 --accountId duongnh.testnet
-   ```
+
+```
+near call nearhub.duongnh.testnet nft_mint '{"collection_id": 0, "schema_id": 0, "template_id": 0, "metadata":{"title": "ZUONG SABER", "description": "Zuong saber", "media": "https://bafkreibhsxpr4qbjqure75n6q6ywulozmb6e2tnedloq6v5em24f6nhmgm.ipfs.dweb.link/"}, "receiver_id": "duongnh.testnet"}' --deposit 0.1 --accountId duongnh.testnet
+```
 
 22. View the token (NFT) we just minted
 
-   ```
-   near view nearhub.duongnh.testnet nft_token '{"token_id": 0}'
-   ```
+```
+near view nearhub.duongnh.testnet nft_token '{"token_id": 0}'
+```
 
 23. View total NFT supply in the NFTContract
 
-   ```
-   near view nearhub.duongnh.testnet nft_total_supply
-   ```
+```
+near view nearhub.duongnh.testnet nft_total_supply
+```
 
 24. View total NFT supply of an account `duongnh.testnet`
 
-   ```
-   near view nearhub.duongnh.testnet nft_supply_for_owner '{"account_id": "duongnh.testnet"}'
-   ```
+```
+near view nearhub.duongnh.testnet nft_supply_for_owner '{"account_id": "duongnh.testnet"}'
+```
 
 25. View list of NFTs of an account `duongnh.testnet`
 
-   ```
-   near view nearhub.duongnh.tesestnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
-   ```
+```
+near view nearhub.duongnh.tesestnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
+```
 
 ## Lootbox
+
 26. Create a Lootbox: (Belongs to a Collection)
-   ```
-   near call nearhub.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_id": 0, "unlock_time": 0, "display_data": "", "config": {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}}' --accountId duongnh.testnet
-   ```
+
+```
+near call nearhub.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_id": 0, "unlock_time": 0, "display_data": "", "config": {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}}' --accountId duongnh.testnet
+```
+
+27. View the total number of Lootboxes of the Contract:
+
+```
+near view nearhub.duongnh.testnet lootbox_total_supply
+```
+
+11. View the total number of Lootboxes of a Collection:
+
+```
+near view nearhub.duongnh.testnet lootbox_supply_by_collection '{"collection_id": 0}'
+```
+
+12. View list of Lootboxes (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
+
+```
+near view nearhub.duongnh.testnet get_all_lootboxes '{"from_index": "0", "limit": 10}'
+```
+
+13. View list of Lootboxes (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
+
+```
+near view nearhub.duongnh.testnet get_all_lootboxes_by_collection '{"collection_id": 0, "from_index": "0", "limit": 10}'
+```
