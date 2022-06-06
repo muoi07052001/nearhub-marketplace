@@ -26,4 +26,5 @@ impl NFTContract {
         // Update dữ liệu on-chain
         self.tokens_per_owner.insert(account_id, &tokens_set);
     }
+
 }

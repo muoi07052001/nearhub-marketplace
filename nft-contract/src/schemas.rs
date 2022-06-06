@@ -6,8 +6,8 @@ impl NFTContract {
     // Tạo 1 Schema mới thuộc 1 Collection nào đó
     pub fn create_schema(
         &mut self,
-        collection_id: CollectionId,
-        schema_name: String,
+        collection_name: CollectionName,
+        schema_name: SchemaName,
         schema_format: Vec<SchemaFormat>,
     ) -> Schema {
         let schema_id = self.schemas_by_id.len() as u32;
@@ -20,15 +20,15 @@ impl NFTContract {
 
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
-        let collection_of_schema = self.collections_by_id.get(&collection_id).expect("Collection not exists");
-        let collection_of_schema_name = collection_of_schema.collection_name;
+        let collection_of_schema = self.collections_by_name.get(&collection_name).expect("Collection not exists");
+        let collection_of_schema_id = collection_of_schema.collection_id;
 
         // Tạo collection mới
         let new_schema = Schema {
             schema_id,
             schema_name,
-            collection_name: collection_of_schema_name,
-            collection_id,
+            collection_name,
+            collection_id: collection_of_schema_id,
             schema_format,
         };
 
@@ -45,9 +45,9 @@ impl NFTContract {
     }
 
     // Lấy tổng số Schemas đang có của Collection nào đó
-    pub fn schema_supply_by_collection(&self, collection_id: CollectionId) -> U128 {
-        // Check collection id có tồn tại không
-        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
+    pub fn schema_supply_by_collection(&self, collection_name: CollectionName) -> U128 {
+        // Check collection name có tồn tại không
+        assert!(self.collections_by_name.get(&collection_name).is_some(), "Collection does not exist");
 
         let mut count = 0;
 
@@ -58,7 +58,7 @@ impl NFTContract {
             .collect();
 
         for schema in schemas_set_by_collection {
-            if schema.collection_id == collection_id {
+            if schema.collection_name == collection_name {
                 count += 1;
             }
         }
@@ -83,12 +83,12 @@ impl NFTContract {
     // Lấy danh sách Schema của Collection nào đó (có pagination)
     pub fn get_all_schemas_by_collection(
         &self,
-        collection_id: CollectionId,
+        collection_name: CollectionName,
         from_index: Option<U128>,
         limit: Option<u64>,
     ) -> Vec<Schema> {
         // Check collection id có tồn tại không
-        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
+        assert!(self.collections_by_name.get(&collection_name).is_some(), "Collection does not exist");
 
         let start = u128::from(from_index.unwrap_or(U128(0)));
 
@@ -104,7 +104,7 @@ impl NFTContract {
             .collect();
 
         for schema in schemas_set_for_owner {
-            if schema.collection_id == collection_id {
+            if schema.collection_name == collection_name {
                 result.push(schema);
             }
         }

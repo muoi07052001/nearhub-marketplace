@@ -42,3 +42,24 @@ pub(crate) fn assert_at_least_one_yocto() {
         "Required attached deposit of at least 1 yoctoNear"
     );
 }
+
+// Trả về kết quả random -> quyết định mint ra NFT thuộc template_id nào
+pub(crate) fn internal_get_random_result(slot: &Slot) -> u32 {
+    let mut rng = Rng::new(&env::random_seed());
+
+    // Random từ 0 -> total_odds
+    let value = rng.rand_range_u32(0, slot.total_odds);
+
+    let mut result = 0;
+    // Lấy random value
+    for i in 0..slot.outcomes.len() - 1 {
+        // If 0 <= value < slot.outcomes[0]
+        if value < slot.outcomes[0].odds {
+            result = slot.outcomes[0].template_id;
+        } else if value >= slot.outcomes[i].odds && value < slot.outcomes[i + 1].odds {
+            result = slot.outcomes[i + 1].template_id;
+        }
+    }
+
+    result
+}

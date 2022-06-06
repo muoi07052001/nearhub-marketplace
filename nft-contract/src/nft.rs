@@ -12,7 +12,7 @@ impl NFTContract {
     #[payable]
     pub fn nft_mint(
         &mut self,
-        collection_id: CollectionId,
+        collection_name: CollectionName,
         schema_id: SchemaId,
         template_id: TemplateId,
         metadata: TokenMetadata,
@@ -29,10 +29,10 @@ impl NFTContract {
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
         let collection = self
-            .collections_by_id
-            .get(&collection_id)
+            .collections_by_name
+            .get(&collection_name)
             .expect("Collection does not exists");
-        let collection_name = collection.collection_name;
+        let collection_id = collection.collection_id;
 
         // Check schema_id có tồn tại không
         // Lấy schema name từ id

@@ -75,9 +75,14 @@ pub struct Lootbox {
     pub config: LootboxConfig,        // Config độ random để ra các loại NFT
 }
 
+// 1 mảng chứa các Slot NFT
+// Độ dài mảng là số NFT chứa trong Lootbox
+// Mỗi Slot có config tỷ lệ ra TemplateId khác nhau
+pub type LootboxConfig = Vec<Slot>;
+
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
 #[serde(crate = "near_sdk::serde")]
-pub struct LootboxConfig {
+pub struct Slot {
     pub total_odds: u32,        // Giới hạn trên của số random
     pub outcomes: Vec<Outcome>, // Mảng config: Template A tỉ lệ bn, Template B tỉ lệ bn
 }

@@ -10,6 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = "3.1.0"
+near-rng = "0.1.0"
 
 [profile.release]
 codegen-units = 1

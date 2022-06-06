@@ -10,21 +10,21 @@ impl NFTContract {
         market_fee: f32,
         data: CollectionExtraData,
     ) -> Collection {
-        let collection_id = self.collections_by_id.len() as u32;
+        let collection_id = self.collections_by_name.len() as u32;
 
         let owner_id = env::predecessor_account_id();
 
-        // Check collection_id đã tồn tại chưa
+        // Check collection_name đã tồn tại chưa
         assert!(
-            self.collections_by_id.get(&collection_id).is_none(),
-            "Collection id already exists"
+            self.collections_by_name.get(&collection_name).is_none(),
+            "Collection name already exists! Must be unique!"
         );
 
         // Tạo collection mới
         let new_collection = Collection {
             collection_id,
             owner_id: owner_id.clone(),
-            collection_name,
+            collection_name: collection_name.clone(),
             market_fee,
             data,
         };
@@ -43,13 +43,13 @@ impl NFTContract {
                 )
             });
 
-        collection_set_for_account.insert(&collection_id.clone());
+        collection_set_for_account.insert(&collection_name.clone());
         self.collections_per_owner
             .insert(&owner_id, &collection_set_for_account);
 
         // Insert collection mới vào collections_by_id
-        self.collections_by_id
-            .insert(&collection_id, &new_collection);
+        self.collections_by_name
+            .insert(&collection_name, &new_collection);
 
         new_collection
     }
@@ -57,7 +57,7 @@ impl NFTContract {
     // Lấy tổng số Collections đang có trong contract
     pub fn collection_total_supply(&self) -> U128 {
         // Đếm tổng số lượng id đang có trong token_metadata_by_id
-        U128(self.collections_by_id.len() as u128)
+        U128(self.collections_by_name.len() as u128)
     }
 
     // Lấy tổng số Collections đang có của account nào đó
@@ -77,11 +77,11 @@ impl NFTContract {
 
         // Duyệt tất cả các keys -> Trả về Collection
         // self.collections_by_id.values_as_vector().to_vec()
-        self.collections_by_id
+        self.collections_by_name
             .iter()
             .skip(start as usize)
             .take(limit.unwrap() as usize)
-            .map(|(collection_id, _collection)| self.collections_by_id.get(&collection_id).unwrap())
+            .map(|(collection_name, _collection)| self.collections_by_name.get(&collection_name).unwrap())
             .collect()
     }
 
@@ -107,19 +107,14 @@ impl NFTContract {
             .iter()
             .skip(start as usize) // Pagination
             .take(limit.unwrap_or(0) as usize) // Pagination
-            .map(|collection_id| self.collections_by_id.get(&collection_id).unwrap())
+            .map(|collection_name| self.collections_by_name.get(&collection_name).unwrap())
             .collect()
-    }
-
-    // Search Collection theo id
-    pub fn get_collection_by_id(&self, collection_id: u32) -> Collection {
-        self.collections_by_id.get(&collection_id).expect("Collection does not exist")
     }
 
     // Search Collection theo name
     // Lấy về tất cả Collection mà tên có chứa ký tự của `search_string`
     pub fn get_collections_by_name(&self, search_string: String) -> Vec<Collection> {
-        let collections_set: Vec<Collection> = self.collections_by_id.values().collect();
+        let collections_set: Vec<Collection> = self.collections_by_name.values().collect();
 
         let mut result = Vec::<Collection>::new();
 

@@ -6,7 +6,7 @@ impl NFTContract {
     // Tạo 1 Template mới
     pub fn create_template(
         &mut self,
-        collection_id: CollectionId,
+        collection_name: CollectionName,
         schema_id: SchemaId,
         transferable: bool,
         burnable: bool,
@@ -24,8 +24,8 @@ impl NFTContract {
 
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
-        let collection_of_template = self.collections_by_id.get(&collection_id).expect("Collection not exists");
-        let collection_of_template_name = collection_of_template.collection_name;
+        let collection_of_template = self.collections_by_name.get(&collection_name).expect("Collection not exists");
+        let collection_of_template_id = collection_of_template.collection_id;
 
         // Check schema_id có tồn tại không
         // Lấy schema name từ id
@@ -33,13 +33,13 @@ impl NFTContract {
         let schema_of_template_name = schema_of_template.schema_name;
 
         // Check xem schema_id đó có thuộc collection_id đó không
-        assert_eq!(schema_of_template.collection_name, collection_of_template_name, "Schema does not belongs to this collection");
+        assert_eq!(schema_of_template.collection_name, collection_name, "Schema does not belongs to this collection");
 
         // Tạo Template mới
         let new_template = Template {
             template_id,
-            collection_id,
-            collection_name: collection_of_template_name,
+            collection_id: collection_of_template_id,
+            collection_name,
             schema_id,
             schema_name: schema_of_template_name,
             transferable,
@@ -62,9 +62,9 @@ impl NFTContract {
     }
 
     // Lấy tổng số Templates đang có của Collection nào đó
-    pub fn template_supply_by_collection(&self, collection_id: CollectionId) -> U128 {
+    pub fn template_supply_by_collection(&self, collection_name: CollectionName) -> U128 {
         // Check collection id có tồn tại không
-        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
+        assert!(self.collections_by_name.get(&collection_name).is_some(), "Collection does not exist");
 
         let mut count = 0;
 
@@ -75,7 +75,7 @@ impl NFTContract {
             .collect();
 
         for template in templates_set_by_collection {
-            if template.collection_id == collection_id {
+            if template.collection_name == collection_name {
                 count += 1;
             }
         }
@@ -99,12 +99,12 @@ impl NFTContract {
     // Lấy danh sách Template của Collection nào đó (có pagination)
     pub fn get_all_templates_by_collection(
         &self,
-        collection_id: CollectionId,
+        collection_name: CollectionName,
         from_index: Option<U128>,
         limit: Option<u64>,
     ) -> Vec<Template> {
         // Check collection id có tồn tại không
-        assert!(self.collections_by_id.get(&collection_id).is_some(), "Collection does not exist");
+        assert!(self.collections_by_name.get(&collection_name).is_some(), "Collection does not exist");
 
         let start = u128::from(from_index.unwrap_or(U128(0)));
 
@@ -120,7 +120,7 @@ impl NFTContract {
             .collect();
 
         for template in templates_set_for_owner {
-            if template.collection_id == collection_id {
+            if template.collection_name == collection_name {
                 result.push(template);
             }
         }
