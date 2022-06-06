@@ -201,5 +201,5 @@ near view nearhub.duongnh.testnet get_all_lootboxes_by_collection '{"collection_
 31. Unbox a Lootbox
 
 ```
-near call nearhub.duongnh.testnet unbox_lootbox '{"lootbox_id": 0}' --accountId duongnh.testnet
+near call nearhub.duongnh.testnet unbox_lootbox '{"lootbox_id": 0, "receiver_id": "duongnh.testnet"}' --accountId duongnh.testnet
 ```

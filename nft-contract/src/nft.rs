@@ -26,8 +26,8 @@ impl NFTContract {
             "Token id already exists"
         );
 
-        // Check collection_id có tồn tại không
-        // Lấy collection name từ id
+        // Check collection_name có tồn tại không
+        // Lấy collection id từ name
         let collection = self
             .collections_by_name
             .get(&collection_name)

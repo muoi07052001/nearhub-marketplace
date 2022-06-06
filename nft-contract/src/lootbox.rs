@@ -48,6 +48,89 @@ impl NFTContract {
         new_lootbox
     }
 
+    // Unbox Lootbox -> Mint NFTs base on Config (Ratio)
+    /**
+     * Số lần quay random (số NFT nhận được) = outcomes.len() (mỗi 1 phần tử của outcomes là 1 slot NFT)
+     * Duyệt config => Quay random từ 0 -> total_odds -> Ra số thuộc khoảng nào thì mint ra NFT thuộc template_id tương ứng
+     * Transfer NFT cho receiver_id
+     * Xoá Lootbox khỏi lootboxes_by_id
+     */
+    #[payable]
+    pub fn unbox_lootbox(
+        &mut self,
+        lootbox_id: LootboxId,
+        // metadata: TokenMetadata,
+        receiver_id: AccountId,
+    ) {
+        let mut rng = Rng::new(&env::random_seed());
+
+        let lootbox = self
+            .lootboxes_by_id
+            .get(&lootbox_id)
+            .expect("Lootbox does not exists");
+
+        let mut _result = 0; // result: template_id random ra được
+        let mut result_arr = Vec::<u32>::new(); // result_arr: Mảng chứa kết quả các template_id phần thưởng trong Lootbox
+                                                // Duyệt mảng config của lootbox
+        for slot in lootbox.config.iter() {
+            // Trả về kết quả random -> quyết định mint ra NFT thuộc template_id nào
+            // Random từ 0 -> total_odds
+            let value = rng.rand_range_u32(0, slot.total_odds);
+
+            let mut result = 0;
+            // Lấy random value
+            for i in 0..slot.outcomes.len() - 1 {
+                // If 0 <= value < slot.outcomes[0]
+                if value < slot.outcomes[0].odds {
+                    result = slot.outcomes[0].template_id;
+                } else if value >= slot.outcomes[i].odds && value < slot.outcomes[i + 1].odds {
+                    result = slot.outcomes[i + 1].template_id;
+                }
+            }
+            result_arr.push(result);
+        }
+
+        for template_id in result_arr.iter() {
+            // Lấy ra schema_id mà template_id thuộc vào
+            let template = self
+                .templates_by_id
+                .get(template_id)
+                .expect("Template id does not exists");
+
+            // ----------------------------------------------
+            // ------------- TODO: Tạo Metadata -------------
+            // ----------------------------------------------
+            let metadata: TokenMetadata = TokenMetadata {
+                title: None,
+                description: None,
+                media: None,
+                media_hash: None,
+                copies: None,
+                issued_at: None,
+                expires_at: None,
+                starts_at: None,
+                updated_at: None,
+                extra: Some("{\"attack\": 10}".to_string()),
+                reference: None,
+                reference_hash: None,
+            };
+
+            // Mint ra NFT dựa trên result (template_id)
+            // Chuyển NFT cho receiver_id
+            self.nft_mint(
+                lootbox.collection_name.clone(),
+                template.schema_id,
+                template.template_id,
+                metadata.clone(),
+                receiver_id.clone(),
+            );
+        }
+
+        // Xoá Lootbox
+        self.lootboxes_by_id.remove(&lootbox_id);
+    }
+
+    //  -------------------------------------- ENUMERATION --------------------------------------
     // Lấy tổng số Lootboxes đang có trong contract
     pub fn lootbox_total_supply(&self) -> U128 {
         // Đếm tổng số lượng id đang có trong token_metadata_by_id
@@ -125,48 +208,5 @@ impl NFTContract {
             }
         }
         result
-    }
-
-    // Unbox Lootbox -> Mint NFTs base on Config (Ratio)
-    /**
-     * Số lần quay random (số NFT nhận được) = outcomes.len() (mỗi 1 phần tử của outcomes là 1 slot NFT)
-     * Duyệt config => Quay random từ 0 -> total_odds -> Ra số thuộc khoảng nào thì mint ra NFT thuộc template_id tương ứng
-     * Transfer NFT cho user
-     * Xoá Lootbox khỏi lootboxes_by_id
-     */
-    pub fn unbox_lootbox(&mut self, lootbox_id: LootboxId) {
-        let mut rng = Rng::new(&env::random_seed());
-
-        let lootbox = self
-            .lootboxes_by_id
-            .get(&lootbox_id)
-            .expect("Lootbox does not exists");
-
-        let mut _result = 0; // result: template_id random ra được
-        let mut result_arr = Vec::<u32>::new(); // result_arr: Mảng chứa kết quả các template_id phần thưởng trong Lootbox
-                                                // Duyệt mảng config của lootbox
-        for slot in lootbox.config.iter() {
-            // Trả về kết quả random -> quyết định mint ra NFT thuộc template_id nào
-            // Random từ 0 -> total_odds
-            let value = rng.rand_range_u32(0, slot.total_odds);
-
-            let mut result = 0;
-            // Lấy random value
-            for i in 0..slot.outcomes.len() - 1 {
-                // If 0 <= value < slot.outcomes[0]
-                if value < slot.outcomes[0].odds {
-                    result = slot.outcomes[0].template_id;
-                } else if value >= slot.outcomes[i].odds && value < slot.outcomes[i + 1].odds {
-                    result = slot.outcomes[i + 1].template_id;
-                }
-            }
-            result_arr.push(result);
-
-            // Mint ra NFT dựa trên result (template_id)
-
-        }
-
-        // Chuyển NFT cho user
-        // Xoá Lootbox
     }
 }
