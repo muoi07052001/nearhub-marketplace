@@ -4,12 +4,21 @@ use crate::*;
 #[near_bindgen]
 impl NFTContract {
     // Tạo 1 Collection mới
+    /**
+     * - Yêu cầu user nạp tiền để cover phí lưu trữ
+     * - Thêm Collection vào collections_by_name + collections_by_id
+     * - Thêm Collection vào danh sách sở hữu bởi owner
+     * - Refund lại NEAR user deposit thừa
+     */
+    #[payable]
     pub fn create_collection(
         &mut self,
         collection_name: String,
         market_fee: f32,
         data: CollectionExtraData,
     ) -> Collection {
+        let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
+
         let collection_id = self.collections_by_name.len() as u32;
 
         let owner_id = env::predecessor_account_id();
@@ -48,8 +57,17 @@ impl NFTContract {
             .insert(&owner_id, &collection_set_for_account);
 
         // Insert collection mới vào collections_by_id
+        self.collections_by_id
+            .insert(&collection_id, &new_collection);
+
+        // Insert collection mới vào collections_by_name
         self.collections_by_name
             .insert(&collection_name, &new_collection);
+
+        // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
+        let after_storage_usage = env::storage_usage();
+        // Refund NEAR
+        refund_deposit(after_storage_usage - before_storage_usage);
 
         new_collection
     }

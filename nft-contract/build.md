@@ -21,7 +21,7 @@ near call nearhub.duongnh.testnet new_default_metadata '{"owner_id": "duongnh.te
 2. Create a Collection:
 
    ```
-   near call nearhub.duongnh.testnet create_collection '{"collection_name": "Game", "market_fee": 5.0, "data": {"name": "Zuong game", "img": ""}}' --accountId duongnh.testnet
+   near call nearhub.duongnh.testnet create_collection '{"collection_name": "Game", "market_fee": 5.0, "data": {"name": "Zuong game", "img": ""}}' --deposit 0.1 --accountId duongnh.testnet
    ```
 
 3. View the total number of Collections of the Contract:
@@ -60,7 +60,7 @@ near call nearhub.duongnh.testnet new_default_metadata '{"owner_id": "duongnh.te
 9. Create a Schema:
 
    ```
-   near call nearhub.duongnh.testnet create_schema '{"collection_name": "Game", "schema_name": "Weapon", "schema_format": [{"attribute_name": "name", "attribute_type": "string"}]}' --accountId duongnh.testnet
+   near call nearhub.duongnh.testnet create_schema '{"collection_name": "Game", "schema_name": "Weapon", "schema_format": [{"attribute_name": "name", "attribute_type": "string"}]}' --deposit 0.1 --accountId duongnh.testnet
    ```
 
 10. View the total number of Schemas of the Contract:
@@ -99,7 +99,7 @@ near view nearhub.duongnh.testnet schema_supply_by_collection '{"collection_name
 15. Create a Template:
 
 ```
-near call nearhub.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "issued_supply": 3, "immutable_data": {"name": "Lightsaber", "img": "", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --accountId duongnh.testnet
+near call nearhub.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "issued_supply": 3, "immutable_data": {"name": "Lightsaber", "img": "", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 16. View the total number of Templates of the Contract:
@@ -169,9 +169,9 @@ near view nearhub.duongnh.testnet nft_tokens_for_owner '{"account_id": "duongnh.
 26. Create a Lootbox: (Belongs to a Collection)
 
 ```
-near call nearhub.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --accountId duongnh.testnet
+near call nearhub.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
 
-near call nearhub.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --accountId duongnh.testnet
+near call nearhub.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 27. View the total number of Lootboxes of the Contract:

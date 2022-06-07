@@ -4,12 +4,20 @@ use crate::*;
 #[near_bindgen]
 impl NFTContract {
     // Tạo 1 Schema mới thuộc 1 Collection nào đó
+    /**
+     * - Yêu cầu user nạp tiền để cover phí lưu trữ
+     * - Thêm Schema vào schemas_by_id
+     * - Refund lại NEAR user deposit thừa
+     */
+    #[payable]
     pub fn create_schema(
         &mut self,
         collection_name: CollectionName,
         schema_name: SchemaName,
         schema_format: Vec<SchemaFormat>,
     ) -> Schema {
+        let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
+        
         let schema_id = self.schemas_by_id.len() as u32;
 
         // Check schema_id đã tồn tại chưa
@@ -34,6 +42,11 @@ impl NFTContract {
 
         // Insert schema mới vào schemas_by_id
         self.schemas_by_id.insert(&schema_id, &new_schema);
+
+        // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
+        let after_storage_usage = env::storage_usage();
+        // Refund NEAR
+        refund_deposit(after_storage_usage - before_storage_usage);
 
         new_schema
     }

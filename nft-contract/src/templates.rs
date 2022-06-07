@@ -4,6 +4,12 @@ use crate::*;
 #[near_bindgen]
 impl NFTContract {
     // Tạo 1 Template mới
+    /**
+     * - Yêu cầu user nạp tiền để cover phí lưu trữ
+     * - Thêm Template vào templates_by_id
+     * - Refund lại NEAR user deposit thừa
+     */
+    #[payable]
     pub fn create_template(
         &mut self,
         collection_name: CollectionName,
@@ -14,6 +20,8 @@ impl NFTContract {
         issued_supply: u32,
         immutable_data: ImmutableData,
     ) -> Template {
+        let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
+
         let template_id = self.templates_by_id.len() as u32;
 
         // Check template_id đã tồn tại chưa
@@ -51,6 +59,11 @@ impl NFTContract {
 
         // Insert template mới vào templates_by_id
         self.templates_by_id.insert(&template_id, &new_template);
+
+        // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
+        let after_storage_usage = env::storage_usage();
+        // Refund NEAR
+        refund_deposit(after_storage_usage - before_storage_usage);
 
         new_template
     }

@@ -18,6 +18,8 @@ impl NFTContract {
         metadata: TokenMetadata,
         receiver_id: AccountId,
     ) {
+        let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
+
         let token_id = self.tokens_by_id.len() as u32;
 
         // Check token_id đã tồn tại chưa
@@ -60,8 +62,6 @@ impl NFTContract {
             template.schema_name, schema_name,
             "Template does not belongs to this schema"
         );
-
-        let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
 
         // Tạo NFT mới
         let token = Token {
