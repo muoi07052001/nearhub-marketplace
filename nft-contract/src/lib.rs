@@ -1,9 +1,12 @@
+use near_rng::Rng;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, near_bindgen, AccountId, PanicOnDefault, CryptoHash, Balance, Promise};
-use near_rng::{Rng};
+use near_sdk::{
+    env, ext_contract, log, near_bindgen, AccountId, Balance, CryptoHash, Gas, PanicOnDefault,
+    Promise, PromiseOrValue, PromiseResult,
+};
 use std::collections::HashMap;
 
 pub type CollectionId = u32;
@@ -14,25 +17,29 @@ pub type TemplateId = u32;
 pub type TokenId = u32;
 pub type LootboxId = u32;
 
-pub use crate::custom_struct::*;
-pub use crate::metadata::*;
+pub use crate::approval::*;
 pub use crate::collections::*;
+pub use crate::custom_struct::*;
+pub use crate::internal::*;
+pub use crate::lootbox::*;
+pub use crate::metadata::*;
+pub use crate::nft::*;
+pub use crate::nft_core::*;
 pub use crate::schemas::*;
 pub use crate::templates::*;
 use crate::utils::*;
-pub use crate::nft::*;
-pub use crate::internal::*;
-pub use crate::lootbox::*;
 
-mod custom_struct;
-mod metadata;
+mod approval;
 mod collections;
+mod custom_struct;
+mod internal;
+mod lootbox;
+mod metadata;
+mod nft;
+mod nft_core;
 mod schemas;
 mod templates;
 mod utils;
-mod nft;
-mod internal;
-mod lootbox;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -55,10 +62,10 @@ pub enum StorageKey {
     CollectionsPerOwnerKey,
     TokensPerOwnerKey,
     CollectionsPerOwnerInnerKey {
-        account_id_hash : CryptoHash, // Để đảm bảo các account_id không trùng nhau
+        account_id_hash: CryptoHash, // Để đảm bảo các account_id không trùng nhau
     },
     TokensPerOwnerInnerKey {
-        account_id_hash : CryptoHash, // Để đảm bảo các account_id không trùng nhau
+        account_id_hash: CryptoHash, // Để đảm bảo các account_id không trùng nhau
     },
     CollectionsByIdKey,
     CollectionsByNameKey,
@@ -79,11 +86,13 @@ impl NFTContract {
             collections_per_owner: LookupMap::new(
                 StorageKey::CollectionsPerOwnerKey.try_to_vec().unwrap(),
             ),
-            tokens_per_owner: LookupMap::new(
-                StorageKey::TokensPerOwnerKey.try_to_vec().unwrap(),
+            tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwnerKey.try_to_vec().unwrap()),
+            collections_by_id: UnorderedMap::new(
+                StorageKey::CollectionsByIdKey.try_to_vec().unwrap(),
             ),
-            collections_by_id: UnorderedMap::new(StorageKey::CollectionsByIdKey.try_to_vec().unwrap()),
-            collections_by_name: UnorderedMap::new(StorageKey::CollectionsByNameKey.try_to_vec().unwrap()),
+            collections_by_name: UnorderedMap::new(
+                StorageKey::CollectionsByNameKey.try_to_vec().unwrap(),
+            ),
             schemas_by_id: UnorderedMap::new(StorageKey::SchemasByIdKey.try_to_vec().unwrap()),
             templates_by_id: UnorderedMap::new(StorageKey::TemplatesByIdKey.try_to_vec().unwrap()),
             tokens_by_id: UnorderedMap::new(StorageKey::TokensByIdKey.try_to_vec().unwrap()),

@@ -10,11 +10,14 @@
    ```
 
 ---
+
 ### Init contract
 
 ```
 near call nearhub.duongnh.testnet new_default_metadata '{"owner_id": "duongnh.testnet"}' --accountId duongnh.testnet
 ```
+
+---
 
 ### Collection
 
@@ -132,6 +135,8 @@ near view nearhub.duongnh.testnet get_all_templates_by_collection '{"collection_
 near view nearhub.duongnh.testnet get_template_by_id '{"template_id": 0}'
 ```
 
+---
+
 ## NFT
 
 21. Mint an NFT:
@@ -163,6 +168,34 @@ near view nearhub.duongnh.testnet nft_supply_for_owner '{"account_id": "duongnh.
 ```
 near view nearhub.duongnh.testnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
 ```
+
+### Approval
+
+7. Transfer NFT from `duongnh.tesnet` to `zuongnh.testnet`
+
+   ```
+   near call nearhub.duongnh.testnet nft_transfer '{"receiver_id": "zuongnh.testnet", "token_id": 0, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
+   ```
+
+8. `zuongnh.testnet` add approval for `duongnh.testnet` to transfer his token
+
+   ```
+   near call nearhub.duongnh.testnet nft_approve '{"token_id": 0, "account_id": "duongnh.testnet"}' --deposit 0.01 --accountId zuongnh.testnet
+   ```
+
+9. View the token we just add approval
+
+   ```
+   near view nearhub.duongnh.testnet nft_token '{"token_id": 0}'
+   ```
+
+10. Use `duongnh.testnet` to transfer token back to `duongnh.testnet` (although token's owner is `zuongnh.testnet`, but since `duongnh.testnet` has been approved to transfer the NFT so it can transfer the NFT)
+
+```
+near call nearhub.duongnh.testnet nft_transfer '{"receiver_id": "duongnh.testnet", "token_id": 0, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
+```
+
+---
 
 ## Lootbox
 
