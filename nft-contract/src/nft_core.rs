@@ -195,21 +195,21 @@ impl NonFungibleTokenResolver for NFTContract {
         self.tokens_by_id.insert(&token_id, &token);
 
         // -------------------------------------------------------------------
-        // // Log lại thông tin về NFT transfer
-        // // NFT TRANSFER LOG
-        // let nft_transfer_log = EventLog {
-        //     standard: "nep171".to_string(),
-        //     version: "1.0.0".to_string(),
-        //     event: EventLogVariant::NftTransfer(vec![NftTransferLog {
-        //         authorized_id,
-        //         old_owner_id: receiver_id.to_string(),
-        //         new_owner_id: owner_id.to_string(),
-        //         token_ids: vec![token_id.to_string()],
-        //         memo,
-        //     }]),
-        // };
+        // Log lại thông tin về NFT transfer
+        // NFT TRANSFER LOG
+        let nft_transfer_log = EventLog {
+            standard: "nep171".to_string(),
+            version: "1.0.0".to_string(),
+            event: EventLogVariant::NftTransfer(vec![NftTransferLog {
+                authorized_id,
+                old_owner_id: receiver_id.to_string(),
+                new_owner_id: owner_id.to_string(),
+                token_ids: vec![token_id.to_string()],
+                memo,
+            }]),
+        };
 
-        // env::log(&nft_transfer_log.to_string().as_bytes());
+        env::log(&nft_transfer_log.to_string().as_bytes());
         // -------------------------------------------------------------------
 
         false // Cho front-end biết là giao dịch thất bại -> Rollback toàn bộ data

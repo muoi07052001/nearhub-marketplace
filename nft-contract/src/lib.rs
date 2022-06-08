@@ -27,6 +27,7 @@ pub use crate::nft::*;
 pub use crate::nft_core::*;
 pub use crate::schemas::*;
 pub use crate::templates::*;
+pub use crate::event::*;
 use crate::utils::*;
 
 mod approval;
@@ -40,6 +41,7 @@ mod nft_core;
 mod schemas;
 mod templates;
 mod utils;
+mod event;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]

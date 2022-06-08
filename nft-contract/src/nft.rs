@@ -89,6 +89,20 @@ impl NFTContract {
         // Thêm token vào danh sách sở hữu bởi owner
         self.internal_add_token_to_owner(&token_id, &token.owner_id);
 
+        // -------------------------------------------------------------------
+        // NFT MINT LOG
+        let nft_mint_log: EventLog = EventLog {
+            standard: "nep171".to_string(),
+            version: "1.0.0".to_string(),
+            event: EventLogVariant::NftMint(vec![NftMintLog {
+                owner_id: token.owner_id.to_string(),
+                token_ids: vec![token_id.to_string()],
+                memo: None,
+            }]),
+        };
+        env::log(&nft_mint_log.to_string().as_bytes());
+        // -------------------------------------------------------------------
+
         // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
         let after_storage_usage = env::storage_usage();
         // Refund NEAR
@@ -152,8 +166,8 @@ impl NFTContract {
             .collect()
     }
 
-     // Lấy danh sách token của account nào đó (có pagination)
-     pub fn nft_tokens_for_owner(
+    // Lấy danh sách token của account nào đó (có pagination)
+    pub fn nft_tokens_for_owner(
         &self,
         account_id: AccountId,
         from_index: Option<U128>,
