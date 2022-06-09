@@ -3,6 +3,7 @@ use crate::*;
 #[near_bindgen]
 impl NFTContract {
     // Tạo 1 Lootbox mới thuộc 1 Collection nào đó
+    #[payable]
     pub fn create_lootbox(
         &mut self,
         lootbox_name: String,
@@ -12,6 +13,8 @@ impl NFTContract {
         display_data: Option<String>,
         config: LootboxConfig,
     ) -> Lootbox {
+        let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
+
         let lootbox_id = self.lootboxes_by_id.len() as u32;
 
         // Check lootbox_id đã tồn tại chưa
@@ -45,6 +48,11 @@ impl NFTContract {
         // Insert lootbox mới vào lootboxes_by_id
         self.lootboxes_by_id.insert(&lootbox_id, &new_lootbox);
 
+        // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
+        let after_storage_usage = env::storage_usage();
+        // Refund NEAR
+        refund_deposit(after_storage_usage - before_storage_usage);
+
         new_lootbox
     }
 
@@ -60,14 +68,26 @@ impl NFTContract {
         &mut self,
         lootbox_id: LootboxId,
         // metadata: TokenMetadata,
-        receiver_id: AccountId,
     ) {
         let mut rng = Rng::new(&env::random_seed());
+        let receiver_id = env::predecessor_account_id();
 
         let lootbox = self
             .lootboxes_by_id
             .get(&lootbox_id)
             .expect("Lootbox does not exists");
+
+        let collection_of_lootbox = self
+            .collections_by_name
+            .get(&lootbox.collection_name)
+            .expect("Collection does not exist");
+
+        // Check unbox must be call by Lootbox's owner
+        assert_eq!(
+            env::predecessor_account_id(),
+            collection_of_lootbox.owner_id,
+            "Only owner of this lootbox can unbox it!"
+        );
 
         let mut _result = 0; // result: template_id random ra được
         let mut result_arr = Vec::<u32>::new(); // result_arr: Mảng chứa kết quả các template_id phần thưởng trong Lootbox
