@@ -36,6 +36,8 @@ impl NFTContract {
             collection_name: collection_name.clone(),
             market_fee,
             data,
+            approved_account_ids: HashMap::default(),
+            next_approval_id: 0,
         };
 
         // Insert collection mới vào collections_per_owner
@@ -90,7 +92,11 @@ impl NFTContract {
     }
 
     // Lấy danh sách tất cả Collections trong Contract
-    pub fn get_all_collections(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<Collection> {
+    pub fn get_all_collections(
+        &self,
+        from_index: Option<U128>,
+        limit: Option<u64>,
+    ) -> Vec<Collection> {
         let start = u128::from(from_index.unwrap_or(U128(0)));
 
         // Duyệt tất cả các keys -> Trả về Collection
@@ -99,7 +105,9 @@ impl NFTContract {
             .iter()
             .skip(start as usize)
             .take(limit.unwrap() as usize)
-            .map(|(collection_name, _collection)| self.collections_by_name.get(&collection_name).unwrap())
+            .map(|(collection_name, _collection)| {
+                self.collections_by_name.get(&collection_name).unwrap()
+            })
             .collect()
     }
 
@@ -137,7 +145,11 @@ impl NFTContract {
         let mut result = Vec::<Collection>::new();
 
         for collection in collections_set {
-            if collection.collection_name.to_lowercase().contains(&search_string.to_lowercase()) {
+            if collection
+                .collection_name
+                .to_lowercase()
+                .contains(&search_string.to_lowercase())
+            {
                 result.push(collection);
             }
         }
