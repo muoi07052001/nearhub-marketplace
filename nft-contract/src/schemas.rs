@@ -17,7 +17,7 @@ impl NFTContract {
         schema_format: Vec<SchemaFormat>,
     ) -> Schema {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
-        
+
         let schema_id = self.schemas_by_id.len() as u32;
 
         // Check schema_id đã tồn tại chưa
@@ -28,8 +28,18 @@ impl NFTContract {
 
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
-        let collection_of_schema = self.collections_by_name.get(&collection_name).expect("Collection not exists");
+        let collection_of_schema = self
+            .collections_by_name
+            .get(&collection_name)
+            .expect("Collection not exists");
         let collection_of_schema_id = collection_of_schema.collection_id;
+
+        // Check signer id is Collection's owner or not
+        assert_eq!(
+            collection_of_schema.owner_id,
+            env::predecessor_account_id(),
+            "Only owner of this collection can create Schema"
+        );
 
         // Tạo collection mới
         let new_schema = Schema {
@@ -60,7 +70,10 @@ impl NFTContract {
     // Lấy tổng số Schemas đang có của Collection nào đó
     pub fn schema_supply_by_collection(&self, collection_name: CollectionName) -> U128 {
         // Check collection name có tồn tại không
-        assert!(self.collections_by_name.get(&collection_name).is_some(), "Collection does not exist");
+        assert!(
+            self.collections_by_name.get(&collection_name).is_some(),
+            "Collection does not exist"
+        );
 
         let mut count = 0;
 
@@ -101,7 +114,10 @@ impl NFTContract {
         limit: Option<u64>,
     ) -> Vec<Schema> {
         // Check collection id có tồn tại không
-        assert!(self.collections_by_name.get(&collection_name).is_some(), "Collection does not exist");
+        assert!(
+            self.collections_by_name.get(&collection_name).is_some(),
+            "Collection does not exist"
+        );
 
         let start = u128::from(from_index.unwrap_or(U128(0)));
 
@@ -132,7 +148,11 @@ impl NFTContract {
         let mut result = Vec::<Schema>::new();
 
         for schema in schemas_set {
-            if schema.schema_name.to_lowercase().contains(&search_string.to_lowercase()) {
+            if schema
+                .schema_name
+                .to_lowercase()
+                .contains(&search_string.to_lowercase())
+            {
                 result.push(schema);
             }
         }

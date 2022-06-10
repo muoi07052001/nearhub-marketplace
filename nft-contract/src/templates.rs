@@ -35,6 +35,13 @@ impl NFTContract {
         let collection_of_template = self.collections_by_name.get(&collection_name).expect("Collection not exists");
         let collection_of_template_id = collection_of_template.collection_id;
 
+        // Check signer id is Collection's owner or not
+        assert_eq!(
+            collection_of_template.owner_id,
+            env::predecessor_account_id(),
+            "Only owner of this collection can create Template"
+        );
+
         // Check schema_id có tồn tại không
         // Lấy schema name từ id
         let schema_of_template = self.schemas_by_id.get(&schema_id).expect("Schema not exists");

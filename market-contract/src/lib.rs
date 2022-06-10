@@ -11,7 +11,6 @@ pub use crate::nft_callback::*;
 pub use crate::sale::*;
 pub use crate::sale_view::*;
 use crate::utils::*;
-pub use crate::drop::*;
 
 // Coi như sau mỗi lần bán qua lại thì tăng storage lên 1000 bytes
 const STORAGE_PER_SALE: u128 = 1000 * env::STORAGE_PRICE_PER_BYTE;
@@ -21,7 +20,6 @@ mod nft_callback;
 mod sale;
 mod sale_view;
 mod utils;
-mod drop;
 
 pub type TokenId = u32;
 pub type NFTContractId = String;
@@ -29,6 +27,9 @@ pub type SalePriceInYoctoNear = U128;
 // Để nếu có 2 Contract khác nhau cùng sử dụng market-contract này thì nếu trùng token id cũng ko sao
 // Có dạng nearhub-nft.duongnh.testnet.1
 pub type ContractAndTokenId = String;
+
+pub type CollectionName = String;
+pub type TemplateId = u32;
 
 // Struct cho việc mua bán
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize)]

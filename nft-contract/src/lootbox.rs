@@ -31,6 +31,13 @@ impl NFTContract {
             .expect("Collection not exists");
         let collection_of_lootbox_id = collection_of_lootbox.collection_id;
 
+        // Check signer id is Collection's owner or not
+        assert_eq!(
+            collection_of_lootbox.owner_id,
+            env::predecessor_account_id(),
+            "Only owner of this collection can create Lootbox"
+        );
+
         // TODO: Check từng template_id trong `config` có thuộc collection_id này không
 
         // Tạo collection mới

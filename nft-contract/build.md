@@ -17,6 +17,8 @@
 near call nearhub-nft.duongnh.testnet new_default_metadata '{"owner_id": "duongnh.testnet"}' --accountId duongnh.testnet
 ```
 
+---
+
 ### Collection
 
 2. Create a Collection:
@@ -133,6 +135,8 @@ near view nearhub-nft.duongnh.testnet get_all_templates_by_collection '{"collect
 near view nearhub-nft.duongnh.testnet get_template_by_id '{"template_id": 0}'
 ```
 
+---
+
 ## NFT
 
 21. Mint an NFT:
@@ -165,6 +169,8 @@ near view nearhub-nft.duongnh.testnet nft_supply_for_owner '{"account_id": "duon
 near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
 ```
 
+---
+
 ### Approval
 
 7. Transfer NFT from `duongnh.tesnet` to `zuongnh.testnet`
@@ -190,6 +196,8 @@ near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duon
 ```
 near call nearhub-nft.duongnh.testnet nft_transfer '{"receiver_id": "duongnh.testnet", "token_id": 0, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
 ```
+
+---
 
 ## Lootbox
 
@@ -229,4 +237,70 @@ near view nearhub-nft.duongnh.testnet get_all_lootboxes_by_collection '{"collect
 
 ```
 near call nearhub-nft.duongnh.testnet unbox_lootbox '{"lootbox_id": 0}' --deposit 0.1 --accountId duongnh.testnet
+```
+
+---
+
+### Drop Sale
+
+32. Create a Drop Sale for some Templates
+
+```
+near call nearhub-nft.duongnh.testnet create_drop '{"collection_name": "Game", "template_ids": [0, 1], "price": 1.50, "price_type": "NEAR", "is_public": true, "max_supply": 10, "account_limit": 1, "account_limit_cooldown": "2", "start_time": "0", "end_time": "0", "display_data": ""}' --deposit 0.1 --accountId duongnh.testnet
+```
+
+16. View the total number of Drop Sales of the Contract:
+
+```
+near view nearhub-nft.duongnh.testnet drop_total_supply
+```
+
+17. View the total number of Drop Sales of a Collection:
+
+```
+near view nearhub-nft.duongnh.testnet drop_supply_by_collection '{"collection_name": "Game"}'
+```
+
+18. View list of Drop Sales (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
+
+```
+near view nearhub-nft.duongnh.testnet get_all_drops '{"from_index": "0", "limit": 10}'
+```
+
+19. View list of Drop Sales (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
+
+```
+near view nearhub-nft.duongnh.testnet get_all_drops_by_collection '{"collection_name": "Game", "from_index": "0", "limit": 10}'
+```
+
+20. Get Drop Sale by Drop Id
+
+```
+near view nearhub-nft.duongnh.testnet get_drop_by_id '{"drop_id": 0}'
+```
+
+
+33. Let all the users of the Contract to purchase this Drop Sale
+```
+near call nearhub-nft.duongnh.testnet drop_add_approval_for_all '{"drop_id": 0}' --accountId duongnh.testnet
+```
+
+34. Add 1 account to Drop Sale's Whitelist -> They can purchase the Drop Sale
+```
+near call nearhub-nft.duongnh.testnet drop_add_whitelist_account '{"drop_id": 0, "account_id": "duongnh.testnet"}' --accountId duongnh.testnet
+```
+
+35. Check if an account in the Drop Sale's Whitelist
+```
+near view nearhub-nft.duongnh.testnet drop_is_approved '{"drop_id": 0, "approved_account_id": "duongnh.testnet", "approval_id": 0}'
+```
+
+36. Remove an account from the Drop Sale's Whitelist
+```
+near call nearhub-nft.duongnh.testnet drop_revoke '{"drop_id": 0, "account_id": "duongnh.testnet"}' --accountId duongnh.testnet --depositYocto 1
+```
+
+37. Remove all accounts from the Drop Sale's Whitelist
+```
+near call nearhub-nft.duongnh.testnet drop_revoke_all '{"drop_id": 0}' --accountId duongnh.testnet --depositYocto 1
 ```

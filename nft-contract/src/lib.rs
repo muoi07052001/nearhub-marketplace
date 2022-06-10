@@ -16,6 +16,7 @@ pub type SchemaName = String;
 pub type TemplateId = u32;
 pub type TokenId = u32;
 pub type LootboxId = u32;
+pub type DropId = u32;
 
 pub use crate::approval::*;
 pub use crate::collections::*;
@@ -28,6 +29,7 @@ pub use crate::nft_core::*;
 pub use crate::schemas::*;
 pub use crate::templates::*;
 pub use crate::event::*;
+pub use crate::drop::*;
 use crate::utils::*;
 
 mod approval;
@@ -42,6 +44,7 @@ mod schemas;
 mod templates;
 mod utils;
 mod event;
+mod drop;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -55,6 +58,7 @@ pub struct NFTContract {
     pub templates_by_id: UnorderedMap<TemplateId, Template>, // Danh sách tất cả Templates của Contract
     pub tokens_by_id: UnorderedMap<TokenId, Token>, // Danh sách tất cả NFT Tokens của Contract
     pub lootboxes_by_id: UnorderedMap<LootboxId, Lootbox>, // Danh sách tất cả Lootboxs của Contract
+    pub drops_by_id: UnorderedMap<DropId, DropSale>, // Danh sách tất cả Lootboxs của Contract
     pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>, // Mapping token id với token metadata
     pub metadata: LazyOption<NFTContractMetadata>,
 }
@@ -75,6 +79,7 @@ pub enum StorageKey {
     TemplatesByIdKey,
     TokensByIdKey,
     LootboxesByIdKey,
+    DropsByIdKey,
     TokenMetadataByIdKey,
     ContractMetadataKey,
 }
@@ -99,6 +104,7 @@ impl NFTContract {
             templates_by_id: UnorderedMap::new(StorageKey::TemplatesByIdKey.try_to_vec().unwrap()),
             tokens_by_id: UnorderedMap::new(StorageKey::TokensByIdKey.try_to_vec().unwrap()),
             lootboxes_by_id: UnorderedMap::new(StorageKey::LootboxesByIdKey.try_to_vec().unwrap()),
+            drops_by_id: UnorderedMap::new(StorageKey::DropsByIdKey.try_to_vec().unwrap()),
             token_metadata_by_id: UnorderedMap::new(
                 StorageKey::TokenMetadataByIdKey.try_to_vec().unwrap(),
             ),
