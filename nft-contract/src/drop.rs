@@ -3,18 +3,19 @@ use crate::*;
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct DropSale {
-    pub drop_id: DropId,                 // Id of the Drop Sale (auto increment)
-    pub owner_id: AccountId,             // Owner account of the Drop Sale
-    pub collection_name: CollectionName, // Collection that the Drop Sale belongs to
-    pub template_ids: Vec<TemplateId>,   // Array of template_id that contains inside the Drop Sale
-    pub price: f32,                      // Price of the Drop Sale
-    pub price_type: String,              // Price Unit: (USDT | NEAR)
-    pub is_public: bool,                 // Decide the Drop Sale is public for everyone or not
-    pub max_supply: u32,                 // Total issued NFTs of the Drop
-    pub account_limit: u32,              // The limit of how many NFTs can 1 account buy at a time
-    pub account_limit_cooldown: String,  // The cooldown time between each buy of 1 account
-    pub start_time: String, // When will the user can buy the Drop Sale (0 if the user can buy immediate after Drop Sale created)
-    pub end_time: String, // When will the user can't buy the Drop Sale anymore (0 if don't have limit time)
+    pub drop_id: DropId,                   // Id of the Drop Sale (auto increment)
+    pub owner_id: AccountId,               // Owner account of the Drop Sale
+    pub collection_name: CollectionName,   // Collection that the Drop Sale belongs to
+    pub template_ids: Vec<TemplateId>, // Array of template_id that contains inside the Drop Sale
+    pub price: u128,                   // Price of the Drop Sale
+    pub price_type: String,            // Price Unit: (USDT | NEAR)
+    pub is_public: bool,               // Decide the Drop Sale is public for everyone or not
+    pub max_supply: u32,               // Max issued NFTs of the Drop
+    pub issued_supply: u32,            // Current issued NFTs of the Drop
+    pub account_limit: u32,            // The limit of how many NFTs can 1 account buy at a time
+    pub account_limit_cooldown: Timestamp, // The cooldown time between each buy of 1 account
+    pub start_time: Timestamp, // When will the user can buy the Drop Sale (0 if the user can buy immediate after Drop Sale created)
+    pub end_time: Timestamp, // When will the user can't buy the Drop Sale anymore (0 if don't have limit time)
     pub display_data: Option<String>, // Display data of the Drop Sale: Name, ...
     pub approved_account_ids: HashMap<AccountId, u64>, // Danh sách các accounts được approved để mua Drop Sale này
     pub next_approval_id: u64,                         // Id của approve tiếp theo
@@ -33,14 +34,14 @@ impl NFTContract {
         &mut self,
         collection_name: CollectionName,
         template_ids: Vec<TemplateId>,
-        price: f32,
+        price: u128,
         price_type: String,
         is_public: bool,
         max_supply: u32,
         account_limit: u32,
-        account_limit_cooldown: String,
-        start_time: String,
-        end_time: String,
+        account_limit_cooldown: Timestamp,
+        start_time: Timestamp,
+        end_time: Timestamp,
         display_data: Option<String>,
     ) -> DropSale {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
@@ -76,6 +77,7 @@ impl NFTContract {
             price_type: price_type.clone(),
             is_public: is_public.clone(),
             max_supply: max_supply.clone(),
+            issued_supply: 0,
             account_limit: account_limit.clone(),
             account_limit_cooldown: account_limit_cooldown.clone(),
             start_time: start_time.clone(),
@@ -323,4 +325,155 @@ impl NFTContract {
     pub fn get_drop_by_id(&self, drop_id: DropId) -> DropSale {
         self.drops_by_id.get(&drop_id).expect("Drop does not exist")
     }
+
+    // Check if an account can claim this Drop Sale or not
+    pub fn is_able_to_claim_drop(
+        &self,
+        claimer_account: AccountId,
+        drop_id: DropId,
+        claim_amount: u32,
+    ) -> bool {
+        let drop = self.drops_by_id.get(&drop_id).expect("Drop does not exist");
+
+        // --- Check if the Drop Sale is public or not ---
+        if drop.is_public == false {
+            // Check if the claimer is in approved_account_ids?
+            let approval = drop.approved_account_ids.get(&claimer_account);
+            // If the account not in approved_account_ids -> Not whitelisted -> Error
+            assert!(approval.is_some(), "Claimer not in the Whitelist accounts");
+        };
+
+        // --- In case the Drop Sale is public ---
+
+        // Check current time is between drop.start_time and drop.end_time or not
+        let claim_drop_timestamp = env::block_timestamp(); // Claim drop timestamp
+        if drop.end_time != 0 {
+            // If drop.end_time != 0 -> Check both start_time and end_time
+            assert!(
+                claim_drop_timestamp < drop.end_time && claim_drop_timestamp > drop.start_time,
+                "Cannot claim this Drop Sale during this time"
+            );
+        } else if drop.end_time == 0 && drop.start_time != 0 {
+            // If drop.end_time == 0 -> Only check start_time
+            assert!(
+                claim_drop_timestamp > drop.start_time,
+                "Cannot claim this Drop Sale during this time"
+            );
+        }
+
+        // Check sufficient amount or not (claim_amount < drop.max_supply - drop.issued_supply)
+        assert!(
+            claim_amount <= drop.max_supply - drop.issued_supply,
+            "Insufficient number of NFTs left in this Drop Sale"
+        );
+
+        // Check if claim_amount is valid or not (drop.account_limit)
+        assert!(
+            claim_amount <= drop.account_limit,
+            "Can only claim maximum of {} NFTs from this Drop Sale at once",
+            drop.account_limit
+        );
+
+        // TODO
+        // Check cooldown_time (drop.account_limit_cooldown)
+
+        return true;
+    }
+
+    // Let user to claim NFTs from a Drop Sale
+    #[payable]
+    pub fn claim_drop(&mut self, drop_id: DropId, claim_amount: u32) {
+        let claimer_account = env::predecessor_account_id();
+        let mut drop = self
+            .drops_by_id
+            .get(&drop_id)
+            .expect("Drop id doesn't exists");
+
+        // --- Check if an account can claim this Drop Sale or not ---
+        self.is_able_to_claim_drop(claimer_account.clone(), drop_id, claim_amount);
+
+        // --- Claim the Drop Sale ---
+        let deposit = env::attached_deposit();
+        assert!(deposit > 0, "Attached deposit must be greater than 0");
+
+        assert!(
+            deposit >= drop.price, // TODO: price * claim_amount
+            "Attached deposit must be greater than or equal current Drop Sale price: {}",
+            drop.price
+        );
+
+        // TODO: Transfer deposit Money to owner of the Drop Sale ?
+        // self.process_purchase(nft_contract_id, drop_id, U128(deposit), claimer_account);
+
+        // --- Mint the NFTs -> Transfer to claimer ---
+
+        // ----------------------------------------------
+        // ------------- TODO: Tạo Metadata -------------
+        // ----------------------------------------------
+        let metadata: TokenMetadata = TokenMetadata {
+            title: None,
+            description: None,
+            media: None,
+            media_hash: None,
+            copies: None,
+            issued_at: None,
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: None,
+            reference: None,
+            reference_hash: None,
+        };
+
+        let template = self.templates_by_id.get(&drop.template_ids[0]).unwrap();
+
+        for _i in 0..claim_amount {
+            self.nft_mint(
+                drop.collection_name.clone(),
+                template.schema_id,
+                template.template_id,
+                metadata.clone(),
+                claimer_account.clone(),
+            );
+        }
+
+        // Increase the drop.issued_supply
+        drop.issued_supply += claim_amount;
+        // Update data of Drop Sale
+        self.drops_by_id.insert(&drop_id, &drop);
+    }
+
+    // // Give the Money to the owner of this Drop sale
+    // #[private]
+    // pub fn process_purchase(
+    //     &mut self,
+    //     nft_contract_id: AccountId,
+    //     drop_id: DropId,
+    //     price: U128,
+    //     claimer_account: AccountId,
+    // ) -> Promise {
+    //     // Increase the drop.issued_supply
+
+    //     // Pay the owner of the Drop Sale
+
+    //     // Cross-contract Call
+    //     ext_nft_contract::nft_transfer_payout(
+    //         buyer_id.clone(),
+    //         token_id,
+    //         sale.approval_id,
+    //         "Payout from market contract".to_string(),
+    //         price,
+    //         10,
+    //         &nft_contract_id,
+    //         1,
+    //         GAS_FOR_NFT_TRANSFER,
+    //     )
+    //     .then(ext_self::resolve_purchase(
+    //         buyer_id,
+    //         price,
+    //         &env::current_account_id(),
+    //         NO_DEPOSIT,
+    //         GAS_FOR_ROYALTIES,
+    //     ))
+    // }
 }

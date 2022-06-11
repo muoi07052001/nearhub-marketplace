@@ -197,6 +197,12 @@ near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duon
 near call nearhub-nft.duongnh.testnet nft_transfer '{"receiver_id": "duongnh.testnet", "token_id": 0, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
 ```
 
+11. View if an account is approved or not
+
+```
+near view nearhub-nft.duongnh.testnet nft_is_approved '{"token_id": 0, "approved_account_id": "duongnh.testnet", "approval_id": 1}'
+```
+
 ---
 
 ## Lootbox
@@ -246,7 +252,7 @@ near call nearhub-nft.duongnh.testnet unbox_lootbox '{"lootbox_id": 0}' --deposi
 32. Create a Drop Sale for some Templates
 
 ```
-near call nearhub-nft.duongnh.testnet create_drop '{"collection_name": "Game", "template_ids": [0, 1], "price": 1.50, "price_type": "NEAR", "is_public": true, "max_supply": 10, "account_limit": 1, "account_limit_cooldown": "2", "start_time": "0", "end_time": "0", "display_data": ""}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_drop '{"collection_name": "Game", "template_ids": [0], "price": 1, "price_type": "NEAR", "is_public": false, "max_supply": 10, "account_limit": 1, "account_limit_cooldown": 2, "start_time": 0, "end_time": 0, "display_data": ""}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 16. View the total number of Drop Sales of the Contract:
@@ -279,15 +285,9 @@ near view nearhub-nft.duongnh.testnet get_all_drops_by_collection '{"collection_
 near view nearhub-nft.duongnh.testnet get_drop_by_id '{"drop_id": 0}'
 ```
 
-
-33. Let all the users of the Contract to purchase this Drop Sale
-```
-near call nearhub-nft.duongnh.testnet drop_add_approval_for_all '{"drop_id": 0}' --accountId duongnh.testnet
-```
-
 34. Add 1 account to Drop Sale's Whitelist -> They can purchase the Drop Sale
 ```
-near call nearhub-nft.duongnh.testnet drop_add_whitelist_account '{"drop_id": 0, "account_id": "duongnh.testnet"}' --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet drop_add_whitelist_account '{"drop_id": 0, "account_id": "zuongnh.testnet"}' --accountId duongnh.testnet --deposit 0.01
 ```
 
 35. Check if an account in the Drop Sale's Whitelist
@@ -303,4 +303,9 @@ near call nearhub-nft.duongnh.testnet drop_revoke '{"drop_id": 0, "account_id": 
 37. Remove all accounts from the Drop Sale's Whitelist
 ```
 near call nearhub-nft.duongnh.testnet drop_revoke_all '{"drop_id": 0}' --accountId duongnh.testnet --depositYocto 1
+```
+
+38. Claim the Drop Sale
+```
+near call nearhub-nft.duongnh.testnet claim_drop '{"drop_id": 0, "claim_amount": 1}' --accountId zuongnh.testnet --deposit 1
 ```

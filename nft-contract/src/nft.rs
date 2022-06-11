@@ -36,12 +36,12 @@ impl NFTContract {
             .expect("Collection does not exists");
         let collection_id = collection.collection_id;
 
-        // Check signer id is Collection's owner or not
-        assert_eq!(
-            collection.owner_id,
-            env::predecessor_account_id(),
-            "Only owner of this collection can mint NFT"
-        );
+        // // Check signer id is Collection's owner or not
+        // assert_eq!(
+        //     collection.owner_id,
+        //     env::predecessor_account_id(),
+        //     "Only owner of this collection can mint NFT"
+        // );
 
         // Check schema_id có tồn tại không
         // Lấy schema name từ id

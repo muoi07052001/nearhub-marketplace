@@ -8,6 +8,8 @@ use near_sdk::{
     Promise, PromiseOrValue, PromiseResult,
 };
 use std::collections::HashMap;
+use std::time::{SystemTime, UNIX_EPOCH};
+use near_sdk::Timestamp;
 
 pub type CollectionId = u32;
 pub type CollectionName = String;
