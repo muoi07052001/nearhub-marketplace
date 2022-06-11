@@ -125,6 +125,11 @@ impl NFTContract {
             "Cannot add the owner his self to the approval list"
         );
 
+        assert!(
+            drop.approved_account_ids.get(&account_id).is_none(),
+            "Account already approved for purchase this Drop Sale"
+        );
+
         let approval_id = drop.next_approval_id;
         // Check whether this account has been approved or not
         // Add the account to approved_account_ids list

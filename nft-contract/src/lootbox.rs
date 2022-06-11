@@ -15,7 +15,7 @@ impl NFTContract {
     ) -> Lootbox {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
 
-        let lootbox_id = self.lootboxes_by_id.len() as u32;
+        let lootbox_id = self.lootbox_id_counter;
 
         // Check lootbox_id đã tồn tại chưa
         assert!(
@@ -39,6 +39,14 @@ impl NFTContract {
         );
 
         // TODO: Check từng template_id trong `config` có thuộc collection_id này không
+        for slot in config.iter() {
+            for outcome in slot.outcomes.iter() {
+                assert!(
+                    self.templates_by_id.get(&outcome.template_id).is_some(),
+                    "Template id inside this lootbox does not exists"
+                );
+            }
+        }
 
         // Tạo collection mới
         let new_lootbox = Lootbox {
@@ -54,6 +62,8 @@ impl NFTContract {
 
         // Insert lootbox mới vào lootboxes_by_id
         self.lootboxes_by_id.insert(&lootbox_id, &new_lootbox);
+
+        self.lootbox_id_counter += 1;
 
         // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
         let after_storage_usage = env::storage_usage();
