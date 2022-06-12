@@ -101,7 +101,8 @@ impl NFTContract {
 
         let new_token = Token {
             owner_id: receiver_id.clone(),
-            token_id: token.token_id,
+            token_id: token.token_id.clone(),
+            token_by_template_id: token.token_by_template_id.clone(),
             collection_id: token.collection_id.clone(),
             collection_name: token.collection_name.clone(),
             schema_id: token.schema_id.clone(),

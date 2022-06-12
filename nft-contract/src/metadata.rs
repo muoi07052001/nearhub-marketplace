@@ -1,17 +1,17 @@
-
 use crate::*;
 
 // ----------------------------------- NFT Struct -----------------------------------
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct Token {
-    pub owner_id: AccountId,                           // Chủ sở hữu của NFT
-    pub token_id: TokenId,                             // Id của NFT
-    pub collection_id: CollectionId,                   // Id của Collection mà NFT thuộc vào
-    pub collection_name: String,                       // Tên Collection mà NFT thuộc vào
-    pub schema_id: SchemaId,                           // Id của Schema mà NFT thuộc vào
-    pub schema_name: String,                           // Tên Schema mà NFT thuộc vào
-    pub template_id: TemplateId,                       // Tên Template mà NFT thuộc vào
-    
+    pub owner_id: AccountId,           // Chủ sở hữu của NFT
+    pub token_id: TokenId,             // Id của NFT
+    pub token_by_template_id: TokenId, // Stt của NFT trong template nó thuộc vào
+    pub collection_id: CollectionId,   // Id của Collection mà NFT thuộc vào
+    pub collection_name: String,       // Tên Collection mà NFT thuộc vào
+    pub schema_id: SchemaId,           // Id của Schema mà NFT thuộc vào
+    pub schema_name: String,           // Tên Schema mà NFT thuộc vào
+    pub template_id: TemplateId,       // Tên Template mà NFT thuộc vào
+
     pub approved_account_ids: HashMap<AccountId, u64>, // Danh sách các accounts được approved để transfer Token này
     pub next_approval_id: u64,                         // Id của approve tiếp theo
 }
@@ -20,14 +20,15 @@ pub struct Token {
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct JsonToken {
-    pub owner_id: AccountId,                           // Chủ sở hữu của NFT
-    pub token_id: TokenId,                             // Id của NFT
-    pub collection_id: CollectionId,                   // Id của Collection mà NFT thuộc vào
-    pub collection_name: String,                       // Tên Collection mà NFT thuộc vào
-    pub schema_id: SchemaId,                           // Id của Schema mà NFT thuộc vào
-    pub schema_name: String,                           // Tên Schema mà NFT thuộc vào
-    pub template_id: TemplateId,                       // Tên Template mà NFT thuộc vào
-    pub metadata: TokenMetadata,                       // Metadata của NFT
+    pub owner_id: AccountId,         // Chủ sở hữu của NFT
+    pub token_id: TokenId,           // Id của NFT
+    pub token_by_template_id: TokenId, // Stt của NFT trong template nó thuộc vào
+    pub collection_id: CollectionId, // Id của Collection mà NFT thuộc vào
+    pub collection_name: String,     // Tên Collection mà NFT thuộc vào
+    pub schema_id: SchemaId,         // Id của Schema mà NFT thuộc vào
+    pub schema_name: String,         // Tên Schema mà NFT thuộc vào
+    pub template_id: TemplateId,     // Tên Template mà NFT thuộc vào
+    pub metadata: TokenMetadata,     // Metadata của NFT
 
     pub approved_account_ids: HashMap<AccountId, u64>, // Danh sách các accounts được approved để transfer Token này
 }

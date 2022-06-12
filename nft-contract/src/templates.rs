@@ -24,6 +24,8 @@ impl NFTContract {
 
         let template_id = self.templates_by_id.len() as u32;
 
+        self.token_by_template_id_counter.insert(&template_id, &0); // Khi tạo Template -> Cho stt counter = 0
+
         // Check template_id đã tồn tại chưa
         assert!(
             self.templates_by_id.get(&template_id).is_none(),

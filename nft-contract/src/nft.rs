@@ -1,5 +1,7 @@
 use crate::*;
 
+const DEFAULT_TOKEN_ID: u32 = 1000000000; // MAX u32 = 4294967295
+
 #[near_bindgen]
 impl NFTContract {
     /**
@@ -20,7 +22,13 @@ impl NFTContract {
     ) {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
 
-        let token_id = self.tokens_by_id.len() as u32;
+        let token_id = DEFAULT_TOKEN_ID + self.tokens_by_id.len() as u32; // TokeId: 1000000001, ...
+
+        // Lấy ra stt của NFT hiện tại trong Template này
+        let mut token_by_template_id = self
+            .token_by_template_id_counter
+            .get(&template_id)
+            .expect("Not found Template");
 
         // Check token_id đã tồn tại chưa
         assert!(
@@ -74,6 +82,7 @@ impl NFTContract {
         let token = Token {
             owner_id: receiver_id,
             token_id,
+            token_by_template_id,
             collection_id,
             collection_name,
             schema_id,
@@ -95,6 +104,11 @@ impl NFTContract {
 
         // Thêm token vào danh sách sở hữu bởi owner
         self.internal_add_token_to_owner(&token_id, &token.owner_id);
+
+        // Update stt của NFT hiện tại trong token_by_template_id_counter
+        token_by_template_id += 1;
+        self.token_by_template_id_counter
+            .insert(&template_id, &token_by_template_id);
 
         // -------------------------------------------------------------------
         // NFT MINT LOG
@@ -126,6 +140,7 @@ impl NFTContract {
             Some(JsonToken {
                 owner_id: token.owner_id,
                 token_id,
+                token_by_template_id: token.token_by_template_id,
                 collection_id: token.collection_id,
                 collection_name: token.collection_name,
                 schema_id: token.schema_id,

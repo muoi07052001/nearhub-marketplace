@@ -8,7 +8,7 @@ pub struct Collection {
     pub owner_id: AccountId,         // Người sở hữu collection
     pub collection_name: String,     // Tên của collection
     pub market_fee: f32,             // Phần trăm nhận lại với mỗi giao dịch NFT
-    pub data: CollectionExtraData,   // Extra data của collection (nếu collection có field data mới thì cho vào đây)
+    pub data: CollectionExtraData, // Extra data của collection (nếu collection có field data mới thì cho vào đây)
 
     pub approved_account_ids: HashMap<AccountId, u64>, // Danh sách các accounts được approved để transfer Token thuộc Collection này
     pub next_approval_id: u64,                         // Id của approve tiếp theo
@@ -61,6 +61,7 @@ pub struct Template {
 pub struct ImmutableData {
     pub name: String,                         // Tên của Template
     pub img: Option<String>,                  // Link tới ảnh của Template
+    pub rarity: Option<String>,               // Rarity of the Template
     pub extra_immutable_data: Option<String>, // Stringified JSON chứa các thông tin fix sẵn dựa theo Schema gửi từ Front-end lên
 }
 

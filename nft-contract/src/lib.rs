@@ -8,7 +8,7 @@ use near_sdk::{
     Promise, PromiseOrValue, PromiseResult,
 };
 use std::collections::HashMap;
-use std::time::{SystemTime, UNIX_EPOCH};
+// use std::time::{SystemTime, UNIX_EPOCH};
 use near_sdk::Timestamp;
 
 pub type CollectionId = u32;
@@ -58,6 +58,7 @@ pub struct NFTContract {
     pub collections_by_id: UnorderedMap<CollectionId, Collection>, // Danh sách tất cả Collections của Contract
     pub schemas_by_id: UnorderedMap<SchemaId, Schema>, // Danh sách tất cả Schemas của Contract
     pub templates_by_id: UnorderedMap<TemplateId, Template>, // Danh sách tất cả Templates của Contract
+    pub token_by_template_id_counter: UnorderedMap<TemplateId, TokenId>, // Đếm stt hiện tại của từng Template
     pub tokens_by_id: UnorderedMap<TokenId, Token>, // Danh sách tất cả NFT Tokens của Contract
     pub lootboxes_by_id: UnorderedMap<LootboxId, Lootbox>, // Danh sách tất cả Lootboxs của Contract
     pub lootbox_id_counter: u32,                    // Auto increment Lootbox id
@@ -80,6 +81,7 @@ pub enum StorageKey {
     CollectionsByNameKey,
     SchemasByIdKey,
     TemplatesByIdKey,
+    TokenByTemplateIdCounter,
     TokensByIdKey,
     LootboxesByIdKey,
     DropsByIdKey,
@@ -105,6 +107,7 @@ impl NFTContract {
             ),
             schemas_by_id: UnorderedMap::new(StorageKey::SchemasByIdKey.try_to_vec().unwrap()),
             templates_by_id: UnorderedMap::new(StorageKey::TemplatesByIdKey.try_to_vec().unwrap()),
+            token_by_template_id_counter: UnorderedMap::new(StorageKey::TokenByTemplateIdCounter.try_to_vec().unwrap()),
             tokens_by_id: UnorderedMap::new(StorageKey::TokensByIdKey.try_to_vec().unwrap()),
             lootboxes_by_id: UnorderedMap::new(StorageKey::LootboxesByIdKey.try_to_vec().unwrap()),
             lootbox_id_counter: 0,
