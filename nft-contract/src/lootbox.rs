@@ -101,12 +101,12 @@ impl NFTContract {
         );
 
         // Check current time is after lootbox.unlock_time or not
-        let claim_drop_timestamp = env::block_timestamp(); // Claim drop timestamp
-        log!("Current time: {}", claim_drop_timestamp);
+        let unbox_time = env::block_timestamp(); // Claim drop timestamp
+        log!("Current time: {}", unbox_time);
         if lootbox.unlock_time != 0 {
             // If lootbox.unclock_time == 0 -> Can unbox at any time
             assert!(
-                claim_drop_timestamp >= lootbox.unlock_time,
+                unbox_time >= lootbox.unlock_time,
                 "Cannot unbox this Lootbox during this time"
             );
         }

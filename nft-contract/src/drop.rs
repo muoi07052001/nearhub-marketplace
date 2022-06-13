@@ -7,7 +7,7 @@ pub struct DropSale {
     pub owner_id: AccountId,               // Owner account of the Drop Sale
     pub collection_name: CollectionName,   // Collection that the Drop Sale belongs to
     pub template_ids: Vec<TemplateId>, // Array of template_id that contains inside the Drop Sale
-    pub price: u128,                   // Price of the Drop Sale
+    pub price: U128,                   // Price of the Drop Sale
     pub price_type: String,            // Price Unit: (USDT | NEAR)
     pub is_public: bool,               // Decide the Drop Sale is public for everyone or not
     pub max_supply: u32,               // Max issued NFTs of the Drop
@@ -34,7 +34,7 @@ impl NFTContract {
         &mut self,
         collection_name: CollectionName,
         template_ids: Vec<TemplateId>,
-        price: u128,
+        price: U128,
         price_type: String,
         is_public: bool,
         max_supply: u32,
@@ -400,21 +400,19 @@ impl NFTContract {
 
         // --- Claim the Drop Sale ---
         let deposit = env::attached_deposit();
+        log!("Deposited: {}", deposit);
         assert!(deposit > 0, "Attached deposit must be greater than 0");
 
         assert!(
-            deposit >= drop.price, // TODO: price * claim_amount
-            "Attached deposit must be greater than or equal current Drop Sale price: {}",
-            drop.price
+            deposit == drop.price.0 * claim_amount as u128, // TODO: price * claim_amount
+            "Attached deposit must be equal to current Drop Sale price: {}",
+            drop.price.0 * claim_amount as u128
         );
-
-        // TODO: Transfer deposit Money to owner of the Drop Sale ?
-        // self.process_purchase(nft_contract_id, drop_id, U128(deposit), claimer_account);
 
         // --- Mint the NFTs -> Transfer to claimer ---
 
         // ----------------------------------------------
-        // ------------- TODO: Tạo Metadata -------------
+        // ------------- TODO: Create Metadata -------------
         // ----------------------------------------------
         let metadata: TokenMetadata = TokenMetadata {
             title: None,
@@ -430,8 +428,6 @@ impl NFTContract {
             reference: None,
             reference_hash: None,
         };
-
-        // let template = self.templates_by_id.get(&drop.template_ids[0]).unwrap();
 
         for i in 0..drop.template_ids.len() {
             let template = self.templates_by_id.get(&drop.template_ids[i]).unwrap();
@@ -451,38 +447,4 @@ impl NFTContract {
         // Update data of Drop Sale
         self.drops_by_id.insert(&drop_id, &drop);
     }
-
-    // // Give the Money to the owner of this Drop sale
-    // #[private]
-    // pub fn process_purchase(
-    //     &mut self,
-    //     nft_contract_id: AccountId,
-    //     drop_id: DropId,
-    //     price: U128,
-    //     claimer_account: AccountId,
-    // ) -> Promise {
-    //     // Increase the drop.issued_supply
-
-    //     // Pay the owner of the Drop Sale
-
-    //     // Cross-contract Call
-    //     ext_nft_contract::nft_transfer_payout(
-    //         buyer_id.clone(),
-    //         token_id,
-    //         sale.approval_id,
-    //         "Payout from market contract".to_string(),
-    //         price,
-    //         10,
-    //         &nft_contract_id,
-    //         1,
-    //         GAS_FOR_NFT_TRANSFER,
-    //     )
-    //     .then(ext_self::resolve_purchase(
-    //         buyer_id,
-    //         price,
-    //         &env::current_account_id(),
-    //         NO_DEPOSIT,
-    //         GAS_FOR_ROYALTIES,
-    //     ))
-    // }
 }

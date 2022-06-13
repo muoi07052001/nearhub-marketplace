@@ -259,7 +259,7 @@ near call nearhub-nft.duongnh.testnet unbox_lootbox '{"lootbox_id": 0}' --deposi
 32. Create a Drop Sale for some Templates
 
 ```
-near call nearhub-nft.duongnh.testnet create_drop '{"collection_name": "Game", "template_ids": [0], "price": 1, "price_type": "NEAR", "is_public": false, "max_supply": 10, "account_limit": 1, "account_limit_cooldown": 2, "start_time": 0, "end_time": 0, "display_data": ""}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_drop '{"collection_name": "Game", "template_ids": [0], "price": "1000000000000000000000000", "price_type": "NEAR", "is_public": false, "max_supply": 10, "account_limit": 2, "account_limit_cooldown": 2, "start_time": 0, "end_time": 0, "display_data": "Game Drop"}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 16. View the total number of Drop Sales of the Contract:
@@ -316,3 +316,5 @@ near call nearhub-nft.duongnh.testnet drop_revoke_all '{"drop_id": 0}' --account
 ```
 near call nearhub-nft.duongnh.testnet claim_drop '{"drop_id": 0, "claim_amount": 1}' --accountId zuongnh.testnet --deposit 1
 ```
+
+**--deposit 1 -> 10^24**
