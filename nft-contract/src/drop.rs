@@ -56,6 +56,12 @@ impl NFTContract {
         );
 
         // Check từng template_id trong template_ids có tồn tại không
+        for template_id in template_ids.iter() {
+            assert!(
+                self.templates_by_id.get(&template_id).is_some(),
+                "Template id inside this lootbox does not exists"
+            );
+        }
 
         let collection = self
             .collections_by_name
@@ -425,16 +431,19 @@ impl NFTContract {
             reference_hash: None,
         };
 
-        let template = self.templates_by_id.get(&drop.template_ids[0]).unwrap();
+        // let template = self.templates_by_id.get(&drop.template_ids[0]).unwrap();
 
-        for _i in 0..claim_amount {
-            self.nft_mint(
-                drop.collection_name.clone(),
-                template.schema_id,
-                template.template_id,
-                metadata.clone(),
-                claimer_account.clone(),
-            );
+        for i in 0..drop.template_ids.len() {
+            let template = self.templates_by_id.get(&drop.template_ids[i]).unwrap();
+            for _j in 0..claim_amount {
+                self.nft_mint(
+                    drop.collection_name.clone(),
+                    template.schema_id,
+                    template.template_id,
+                    metadata.clone(),
+                    claimer_account.clone(),
+                );
+            }
         }
 
         // Increase the drop.issued_supply

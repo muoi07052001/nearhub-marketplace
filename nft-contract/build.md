@@ -63,7 +63,7 @@ near call nearhub-nft.duongnh.testnet new_default_metadata '{"owner_id": "duongn
 9. Create a Schema:
 
    ```
-   near call nearhub-nft.duongnh.testnet create_schema '{"collection_name": "Game", "schema_name": "Weapon", "schema_format": [{"attribute_name": "name", "attribute_type": "string"}]}' --deposit 0.1 --accountId duongnh.testnet
+   near call nearhub-nft.duongnh.testnet create_schema '{"collection_name": "Game", "schema_name": "Weapon", "schema_format": [{"attribute_name": "name", "attribute_type": "string"}, {"attribute_name": "img", "attribute_type": "string"}, {"attribute_name": "rarity", "attribute_type": "string"}]}' --deposit 0.1 --accountId duongnh.testnet
    ```
 
 10. View the total number of Schemas of the Contract:
@@ -102,7 +102,7 @@ near view nearhub-nft.duongnh.testnet schema_supply_by_collection '{"collection_
 15. Create a Template:
 
 ```
-near call nearhub-nft.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "issued_supply": 3, "immutable_data": {"name": "Lightsaber", "img": "", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "immutable_data": {"name": "Lightsaber", "img": "", "rarity": "uncommon", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 16. View the total number of Templates of the Contract:
@@ -148,7 +148,7 @@ near call nearhub-nft.duongnh.testnet nft_mint '{"collection_name": "Game", "sch
 22. View the token (NFT) we just minted
 
 ```
-near view nearhub-nft.duongnh.testnet nft_token '{"token_id": 0}'
+near view nearhub-nft.duongnh.testnet nft_token '{"token_id": 1000000000}'
 ```
 
 23. View total NFT supply in the NFTContract
@@ -163,7 +163,14 @@ near view nearhub-nft.duongnh.testnet nft_total_supply
 near view nearhub-nft.duongnh.testnet nft_supply_for_owner '{"account_id": "duongnh.testnet"}'
 ```
 
-25. View list of NFTs of an account `duongnh.testnet`
+25. View list of NFTs of the Contract
+
+```
+near view nearhub-nft.duongnh.testnet nft_tokens '{"from_index": "0", "limit": 10}'
+```
+
+
+26. View list of NFTs of an account `duongnh.testnet`
 
 ```
 near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
@@ -188,7 +195,7 @@ near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duon
 9. View the token we just add approval
 
    ```
-   near view nearhub-nft.duongnh.testnet nft_token '{"token_id": 0}'
+   near view nearhub-nft.duongnh.testnet nft_token '{"token_id": 1000000000}'
    ```
 
 10. Use `duongnh.testnet` to transfer token back to `duongnh.testnet` (although token's owner is `zuongnh.testnet`, but since `duongnh.testnet` has been approved to transfer the NFT so it can transfer the NFT)

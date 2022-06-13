@@ -30,12 +30,6 @@ impl NFTContract {
             .get(&template_id)
             .expect("Not found Template");
 
-        // Check token_id đã tồn tại chưa
-        assert!(
-            self.tokens_by_id.get(&token_id).is_none(),
-            "Token id already exists"
-        );
-
         // Check collection_name có tồn tại không
         // Lấy collection id từ name
         let collection = self
@@ -61,7 +55,7 @@ impl NFTContract {
 
         // Check template_id có tồn tại không
         // Lấy template name từ id
-        let template = self
+        let mut template = self
             .templates_by_id
             .get(&template_id)
             .expect("Template does not exists");
@@ -76,6 +70,12 @@ impl NFTContract {
         assert_eq!(
             template.schema_name, schema_name,
             "Template does not belongs to this schema"
+        );
+
+        // Check if that template has issued all the NFTs or not
+        assert!(
+            template.issued_supply < template.max_supply,
+            "This template has issued all the NFTs"
         );
 
         // Tạo NFT mới
@@ -123,6 +123,11 @@ impl NFTContract {
         };
         env::log(&nft_mint_log.to_string().as_bytes());
         // -------------------------------------------------------------------
+
+        // Increase issued_supply of this template by 1
+        template.issued_supply += 1;
+        // Update data of template
+        self.templates_by_id.insert(&template_id, &template);
 
         // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
         let after_storage_usage = env::storage_usage();

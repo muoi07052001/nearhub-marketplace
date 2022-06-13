@@ -74,7 +74,7 @@ pub struct Lootbox {
     pub description: String,          // Description của Lootbox
     pub collection_id: CollectionId,  // Id của Collection mà Lootbox thuộc vào
     pub collection_name: String,      // Collection mà Lootbox thuộc vào
-    pub unlock_time: Option<u32>,     // Thời điểm cho phép mở Lootbox
+    pub unlock_time: Timestamp,       // Thời điểm cho phép mở Lootbox
     pub display_data: Option<String>, // Dữ liệu cần thiết hiển thị cho Front-end (stringified JSON)
     pub config: LootboxConfig,        // Config độ random để ra các loại NFT
 }

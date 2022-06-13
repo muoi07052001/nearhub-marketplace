@@ -3,7 +3,7 @@ use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::U128;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, ext_contract, near_bindgen, AccountId, Balance, CryptoHash, Gas, PanicOnDefault, Promise,
+    env, ext_contract, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise,
 };
 
 pub use crate::internal::*;

@@ -9,19 +9,13 @@ impl NFTContract {
         lootbox_name: String,
         description: String,
         collection_name: CollectionName,
-        unlock_time: Option<u32>,
+        unlock_time: Timestamp,
         display_data: Option<String>,
         config: LootboxConfig,
     ) -> Lootbox {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
 
         let lootbox_id = self.lootbox_id_counter;
-
-        // Check lootbox_id đã tồn tại chưa
-        assert!(
-            self.lootboxes_by_id.get(&lootbox_id).is_none(),
-            "Lootbox id already exists"
-        );
 
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
@@ -38,7 +32,7 @@ impl NFTContract {
             "Only owner of this collection can create Lootbox"
         );
 
-        // TODO: Check từng template_id trong `config` có thuộc collection_id này không
+        // Check từng template_id trong `config` có thuộc collection_id này không
         for slot in config.iter() {
             for outcome in slot.outcomes.iter() {
                 assert!(
@@ -106,6 +100,17 @@ impl NFTContract {
             "Only owner of this lootbox can unbox it!"
         );
 
+        // Check current time is after lootbox.unlock_time or not
+        let claim_drop_timestamp = env::block_timestamp(); // Claim drop timestamp
+        log!("Current time: {}", claim_drop_timestamp);
+        if lootbox.unlock_time != 0 {
+            // If lootbox.unclock_time == 0 -> Can unbox at any time
+            assert!(
+                claim_drop_timestamp >= lootbox.unlock_time,
+                "Cannot unbox this Lootbox during this time"
+            );
+        }
+
         let mut _result = 0; // result: template_id random ra được
         let mut result_arr = Vec::<u32>::new(); // result_arr: Mảng chứa kết quả các template_id phần thưởng trong Lootbox
                                                 // Duyệt mảng config của lootbox
@@ -147,7 +152,8 @@ impl NFTContract {
                 expires_at: None,
                 starts_at: None,
                 updated_at: None,
-                extra: Some("{\"attack\": 10}".to_string()),
+                // extra: Some("{\"attack\": 10}".to_string()),
+                extra: None,
                 reference: None,
                 reference_hash: None,
             };

@@ -20,12 +20,6 @@ impl NFTContract {
 
         let schema_id = self.schemas_by_id.len() as u32;
 
-        // Check schema_id đã tồn tại chưa
-        assert!(
-            self.schemas_by_id.get(&schema_id).is_none(),
-            "Schema id already exists"
-        );
-
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
         let collection_of_schema = self

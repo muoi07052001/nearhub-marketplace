@@ -17,7 +17,6 @@ impl NFTContract {
         transferable: bool,
         burnable: bool,
         max_supply: u32,
-        issued_supply: u32,
         immutable_data: ImmutableData,
     ) -> Template {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
@@ -25,12 +24,6 @@ impl NFTContract {
         let template_id = self.templates_by_id.len() as u32;
 
         self.token_by_template_id_counter.insert(&template_id, &0); // Khi tạo Template -> Cho stt counter = 0
-
-        // Check template_id đã tồn tại chưa
-        assert!(
-            self.templates_by_id.get(&template_id).is_none(),
-            "Template id already exists"
-        );
 
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
@@ -62,7 +55,7 @@ impl NFTContract {
             transferable,
             burnable,
             max_supply,
-            issued_supply,
+            issued_supply: 0,
             immutable_data,
         };
 
