@@ -68,6 +68,33 @@ impl MarketContract {
             .collect()
     }
 
+    // Get Sales by Collection Name (with pagination)
+    pub fn get_sales_by_collection_name(
+        &self,
+        collection_name: CollectionName,
+        from_index: Option<U128>,
+        limit: Option<u64>,
+    ) -> Vec<Sale> {
+        let start = u128::from(from_index.unwrap_or(U128(0)));
+
+        let mut result = Vec::<Sale>::new();
+
+        let sales_set: Vec<Sale> = self.sales
+            .iter()
+            .skip(start as usize)
+            .take(limit.unwrap_or(0) as usize)
+            .map(|(_contract_and_token_id, sale)| sale)
+            .collect();
+
+        for sale in sales_set {
+            if sale.collection_name == collection_name {
+                result.push(sale);
+            }
+        }
+
+        result
+    }
+
     // Lấy tất cả thông tin sale của contract_id (có pagination)
     pub fn get_sales_by_contract_id(
         &self,

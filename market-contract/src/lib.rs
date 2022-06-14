@@ -29,27 +29,36 @@ pub type SalePriceInYoctoNear = U128;
 pub type ContractAndTokenId = String;
 
 pub type CollectionName = String;
+pub type SchemaName = String;
+pub type CollectionId = u32;
+pub type SchemaId = u32;
 pub type TemplateId = u32;
 
 // Struct cho việc mua bán
 #[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Sale {
-    pub owner_id: AccountId,                    // Owner of the Sale
+    pub owner_id: AccountId, // Owner of the Sale
     pub approval_id: u64,
-    pub nft_contract_id: NFTContractId,
-    pub token_id: TokenId,
-    pub sale_conditions: SalePriceInYoctoNear,  // Các điều kiện của sales (Giá, ...)
+    pub nft_contract_id: NFTContractId,        // nft-contract
+    pub token_id: TokenId,                     // Id of NFT
+    pub token_by_template_id: TokenId,         // The position of this NFT inside the Template it belongs to
+    pub collection_id: CollectionId,           // Id of the Collection this NFT belongs to
+    pub collection_name: CollectionName,       // Name of the Collection this NFT belongs to
+    pub schema_id: SchemaId,                   // Id of the Schema this NFT belongs to
+    pub schema_name: SchemaName,               // Name of the Schema this NFT belongs
+    pub template_id: TemplateId,               // Id of the Schema this NFT belongs to
+    pub sale_conditions: SalePriceInYoctoNear, // Các điều kiện của sales (Giá, ...)
 }
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct MarketContract {
-    pub owner_id: AccountId,                                                        // Owner of contract
-    pub sales: UnorderedMap<ContractAndTokenId, Sale>,                              // Danh sách sales của NFT
+    pub owner_id: AccountId,                           // Owner of contract
+    pub sales: UnorderedMap<ContractAndTokenId, Sale>, // Mapping thông tin của các NFT đang được Sales
     pub tokens_by_owner_id: LookupMap<AccountId, UnorderedSet<ContractAndTokenId>>, // Danh sách các token_id đang được đăng bán của 1 account_id
-    pub tokens_by_contract_id: LookupMap<NFTContractId, UnorderedSet<TokenId>>,     // Danh sách các token_id đang được đăng bán của 1 nft contract
-    pub storage_deposit_account: LookupMap<AccountId, Balance>,                     // Danh sách lượng deposit của từng account để cover storage
+    pub tokens_by_contract_id: LookupMap<NFTContractId, UnorderedSet<TokenId>>, // Danh sách các token_id đang được đăng bán của 1 nft contract
+    pub storage_deposit_account: LookupMap<AccountId, Balance>, // Danh sách lượng deposit của từng account để cover storage
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]

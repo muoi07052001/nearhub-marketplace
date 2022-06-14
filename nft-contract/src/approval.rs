@@ -11,7 +11,12 @@ pub trait NonFungibleTokenApproval {
     // Cho phép account khác (Marketplace) quyền chuyển token của mình cho người khác
     fn nft_approve(&mut self, token_id: TokenId, account_id: AccountId, msg: Option<String>);
     // Cho phép account khác (Marketplace) quyền chuyển token thuộc collection của mình cho người khác
-    fn nft_approve_for_collection(&mut self, collection_name: CollectionName, account_id: AccountId, msg: Option<String>);
+    fn nft_approve_for_collection(
+        &mut self,
+        collection_name: CollectionName,
+        account_id: AccountId,
+        msg: Option<String>,
+    );
     // Check xem account đã có quyền chuyển Token chưa
     // Nếu approve account_id hợp lệ -> return true, else return false
     fn nft_is_approved(
@@ -36,6 +41,20 @@ pub trait NonFungibleTokenApprovalReceiver {
     fn nft_on_approve(
         &mut self,
         token_id: TokenId,
+        owner_id: AccountId,
+        approval_id: u64,
+        token_by_template_id: TokenId, // Stt của NFT trong template nó thuộc vào
+        collection_id: CollectionId,   // Id của Collection mà NFT thuộc vào
+        collection_name: CollectionName, // Tên Collection mà NFT thuộc vào
+        schema_id: SchemaId,           // Id của Schema mà NFT thuộc vào
+        schema_name: SchemaName,       // Tên Schema mà NFT thuộc vào
+        template_id: TemplateId,       // Tên Template mà NFT thuộc vào
+        msg: String,
+    );
+
+    fn nft_on_approve_for_collection(
+        &mut self,
+        collection_name: CollectionName,
         owner_id: AccountId,
         approval_id: u64,
         msg: String,
@@ -92,6 +111,12 @@ impl NonFungibleTokenApproval for NFTContract {
                 token_id,
                 token.owner_id,
                 approval_id,
+                token.token_by_template_id.clone(),
+                token.collection_id,
+                token.collection_name,
+                token.schema_id,
+                token.schema_name,
+                token.template_id,
                 msg,
                 &account_id,
                 NO_DEPOSIT,
@@ -106,11 +131,19 @@ impl NonFungibleTokenApproval for NFTContract {
     // Note: Vì function này sẽ làm tăng data trong Contract -> Thêm payable để user deposit thêm
     // Account ID => market contract id
     #[payable]
-    fn nft_approve_for_collection(&mut self, collection_name: CollectionName, account_id: AccountId, msg: Option<String>) {
+    fn nft_approve_for_collection(
+        &mut self,
+        collection_name: CollectionName,
+        account_id: AccountId,
+        msg: Option<String>,
+    ) {
         assert_at_least_one_yocto();
 
         // Kiểm tra xem Collection có tồn tại hay không
-        let mut collection = self.collections_by_name.get(&collection_name).expect("Not found collection");
+        let mut collection = self
+            .collections_by_name
+            .get(&collection_name)
+            .expect("Not found collection");
 
         // Check xem sender có phải collection owner không
         // Chỉ owner mới có quyền approved cho account khác
@@ -137,8 +170,10 @@ impl NonFungibleTokenApproval for NFTContract {
         };
 
         collection.next_approval_id += 1;
-        self.collections_by_name.insert(&collection_name, &collection);
-        self.collections_by_id.insert(&collection.collection_id, &collection);
+        self.collections_by_name
+            .insert(&collection_name, &collection);
+        self.collections_by_id
+            .insert(&collection.collection_id, &collection);
 
         // Refund nếu user nạp vào thừa phí lưu trữ
         refund_deposit(storage_used);
@@ -146,8 +181,8 @@ impl NonFungibleTokenApproval for NFTContract {
         // Nếu có gắn msg -> Thực hiện Cross Contract Call sang market contract
         // msg chứa thông tin: giá, hành động, hàm, ...
         if let Some(msg) = msg {
-            ext_non_fungible_token_approval_receiver::nft_on_approve(
-                collection.collection_id,
+            ext_non_fungible_token_approval_receiver::nft_on_approve_for_collection(
+                collection.collection_name,
                 collection.owner_id,
                 approval_id,
                 msg,

@@ -106,7 +106,7 @@ impl NFTContract {
         self.templates_by_id
             .iter()
             .skip(start as usize)
-            .take(limit.unwrap() as usize)
+            .take(limit.unwrap_or(0) as usize)
             .map(|(template_id, _template)| self.templates_by_id.get(&template_id).unwrap())
             .collect()
     }

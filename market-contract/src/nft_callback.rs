@@ -8,8 +8,24 @@ pub trait NonFungibleTokenApprovalReceiver {
         token_id: TokenId,
         owner_id: AccountId,
         approval_id: u64,
+        token_by_template_id: TokenId, // Stt của NFT trong template nó thuộc vào
+        collection_id: CollectionId,   // Id của Collection mà NFT thuộc vào
+        collection_name: CollectionName, // Tên Collection mà NFT thuộc vào
+        schema_id: SchemaId,           // Id của Schema mà NFT thuộc vào
+        schema_name: SchemaName,       // Tên Schema mà NFT thuộc vào
+        template_id: TemplateId,       // Tên Template mà NFT thuộc vào
         msg: String,
     );
+
+    #[allow(unused_variables)]
+    fn nft_on_approve_for_collection(
+        &mut self,
+        collection_name: CollectionName,
+        owner_id: AccountId,
+        approval_id: u64,
+        msg: String,
+    ) {
+    }
 }
 
 // Cấu trúc của msg
@@ -29,6 +45,12 @@ impl NonFungibleTokenApprovalReceiver for MarketContract {
         token_id: TokenId,
         owner_id: AccountId,
         approval_id: u64,
+        token_by_template_id: TokenId, // Stt của NFT trong template nó thuộc vào
+        collection_id: CollectionId,   // Id của Collection mà NFT thuộc vào
+        collection_name: CollectionName, // Tên Collection mà NFT thuộc vào
+        schema_id: SchemaId,           // Id của Schema mà NFT thuộc vào
+        schema_name: SchemaName,       // Tên Schema mà NFT thuộc vào
+        template_id: TemplateId,       // Tên Template mà NFT thuộc vào
         msg: String,
     ) {
         // User => NFT Contract => Market Contract
@@ -70,6 +92,12 @@ impl NonFungibleTokenApprovalReceiver for MarketContract {
                 approval_id,
                 nft_contract_id: nft_contract_id.clone(),
                 token_id: token_id.clone(),
+                token_by_template_id: token_by_template_id.clone(),
+                collection_id: collection_id.clone(),
+                collection_name: collection_name.clone(),
+                schema_id: schema_id.clone(),
+                schema_name: schema_name.clone(),
+                template_id: template_id.clone(),
                 sale_conditions,
             },
         );
@@ -87,7 +115,8 @@ impl NonFungibleTokenApprovalReceiver for MarketContract {
         });
 
         tokens_by_owner_id.insert(&contract_and_token_id);
-        self.tokens_by_owner_id.insert(&owner_id, &tokens_by_owner_id);
+        self.tokens_by_owner_id
+            .insert(&owner_id, &tokens_by_owner_id);
 
         // Thêm vào tokens_by_contract_id
         let mut tokens_by_contract_id = self
@@ -106,5 +135,20 @@ impl NonFungibleTokenApprovalReceiver for MarketContract {
         tokens_by_contract_id.insert(&token_id);
         self.tokens_by_contract_id
             .insert(&nft_contract_id, &tokens_by_contract_id);
+
+        // TODO: Thêm vào collections_by_name
+        // TODO: Thêm vào schemas_by_id
+        // TODO: Thêm vào templates_by_id
+    }
+
+    // TODO : Implement nft on approve for collection callback
+    #[allow(unused_variables)]
+    fn nft_on_approve_for_collection(
+        &mut self,
+        collection_name: CollectionName,
+        owner_id: AccountId,
+        approval_id: u64,
+        msg: String,
+    ) {
     }
 }
