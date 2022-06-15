@@ -42,12 +42,12 @@ pub struct Sale {
     pub approval_id: u64,
     pub nft_contract_id: NFTContractId,        // nft-contract
     pub token_id: TokenId,                     // Id of NFT
-    pub token_by_template_id: TokenId,         // The position of this NFT inside the Template it belongs to
-    pub collection_id: CollectionId,           // Id of the Collection this NFT belongs to
-    pub collection_name: CollectionName,       // Name of the Collection this NFT belongs to
-    pub schema_id: SchemaId,                   // Id of the Schema this NFT belongs to
-    pub schema_name: SchemaName,               // Name of the Schema this NFT belongs
-    pub template_id: TemplateId,               // Id of the Schema this NFT belongs to
+    pub token_by_template_id: TokenId, // The position of this NFT inside the Template it belongs to
+    pub collection_id: CollectionId,   // Id of the Collection this NFT belongs to
+    pub collection_name: CollectionName, // Name of the Collection this NFT belongs to
+    pub schema_id: SchemaId,           // Id of the Schema this NFT belongs to
+    pub schema_name: SchemaName,       // Name of the Schema this NFT belongs
+    pub template_id: TemplateId,       // Id of the Schema this NFT belongs to
     pub sale_conditions: SalePriceInYoctoNear, // Các điều kiện của sales (Giá, ...)
 }
 

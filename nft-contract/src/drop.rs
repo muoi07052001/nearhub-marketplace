@@ -404,7 +404,7 @@ impl NFTContract {
         assert!(deposit > 0, "Attached deposit must be greater than 0");
 
         assert!(
-            deposit == drop.price.0 * claim_amount as u128, // TODO: price * claim_amount
+            deposit == drop.price.0 * claim_amount as u128,
             "Attached deposit must be equal to current Drop Sale price: {}",
             drop.price.0 * claim_amount as u128
         );

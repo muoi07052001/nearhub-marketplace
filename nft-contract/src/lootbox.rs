@@ -140,7 +140,7 @@ impl NFTContract {
                 .expect("Template id does not exists");
 
             // ----------------------------------------------
-            // ------------- TODO: Tạo Metadata -------------
+            // ------------- TODO: Create Metadata -------------
             // ----------------------------------------------
             let metadata: TokenMetadata = TokenMetadata {
                 title: None,
