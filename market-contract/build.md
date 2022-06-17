@@ -1,6 +1,6 @@
 # How to build and test this contract
 
-1. Create nft_contract_id -> deploy out/nft-contract.wasm to nft_contract_id (`nearhub-market.nft.duongnh.testnet`)
+1. Create market_contract_id -> deploy out/market-contract.wasm to market_contract_id (`nearhub-market.duongnh.testnet`)
 
    ```
    - ./build.sh
@@ -25,22 +25,22 @@ near call nearhub-market.duongnh.testnet new '{"owner_id": "duongnh.testnet"}' -
    near call nearhub-market.duongnh.testnet storage_deposit '{"account_id": "duongnh.testnet"}' --accountId duongnh.testnet --deposit 0.1
    ```
 
-4. Call approve to transfer token (`zuongnh.testnet` gives approve to Market Contract: `nearhub-market.duongnh.testnet` with `price = 1 NEAR`)
+4. Call approve to transfer token (`duongnh.testnet` gives approve to Market Contract: `nearhub-market.duongnh.testnet` with `price = 1 NEAR`)
 
    ```
-   near call nearhub-nft.duongnh.testnet nft_approve '{"token_id": 0, "account_id": "nearhub-market.duongnh.testnet", "msg": "{\"sale_conditions\": \"1000000000000000000000000\"}"}' --deposit 0.01 --accountId duongnh.testnet
+   near call nearhub-nft.duongnh.testnet nft_approve '{"token_id": 1000000000, "account_id": "nearhub-market.duongnh.testnet", "msg": "{\"sale_conditions\": \"1000000000000000000000000\"}"}' --deposit 0.01 --accountId duongnh.testnet
    ```
 
 5. Update price of a NFT
 
    ```
-   near call nearhub-market.duongnh.testnet update_price '{"nft_contract_id": "nearhub-nft.duongnh.testnet", "token_id": 0, "price": "5000000000000000000000000"}' --accountId duongnh.testnet --depositYocto 1
+   near call nearhub-market.duongnh.testnet update_price '{"nft_contract_id": "nearhub-nft.duongnh.testnet", "token_id": 1000000000, "price": "5000000000000000000000000"}' --accountId duongnh.testnet --depositYocto 1
    ```
 
 6. Offer buy an NFT
 
    ```
-   near call nearhub-market.duongnh.testnet offer '{"nft_contract_id": "nearhub-nft.duongnh.testnet", "token_id": 0}' --accountId duongnh.testnet --deposit 0.01
+   near call nearhub-market.duongnh.testnet offer '{"nft_contract_id": "nearhub-nft.duongnh.testnet", "token_id": 1000000000}' --accountId duongnh.testnet --deposit 1
    ```
 
 ### Enumeration
@@ -66,10 +66,16 @@ near call nearhub-market.duongnh.testnet new '{"owner_id": "duongnh.testnet"}' -
 5. Get list Sales information of an account `duongnh.testnet` (Have pagination)
 
    ```
-   near view nearhub-market.duongnh.testnet get_sales_by_owner_id '{"from_index": "0", "limit": 10}'
+   near view nearhub-market.duongnh.testnet get_sales_by_owner_id '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
+   ```
+
+6. Get list Sales information of a Collection (Have pagination)
+
+   ```
+   near view nearhub-market.duongnh.testnet get_sales_by_collection_name '{"collection_name": "Game", "from_index": "0", "limit": 10}'
    ```
 
 6. Get list Sales information of a market (contract_id) `nearhub-market.duongnh.testnet` (Have pagination)
    ```
-   near view nearhub-market.duongnh.testnet get_sales_by_contract_id '{"contract_id": "nearhub-nft.duongnh.testnet", "from_index": "0", "limit": 10}'
+   near view nearhub-market.duongnh.testnet get_sales_by_contract_id '{"from_index": "0", "limit": 10}'
    ```

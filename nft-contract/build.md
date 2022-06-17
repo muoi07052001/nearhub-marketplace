@@ -183,13 +183,13 @@ near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duon
 7. Transfer NFT from `duongnh.tesnet` to `zuongnh.testnet`
 
    ```
-   near call nearhub-nft.duongnh.testnet nft_transfer '{"receiver_id": "zuongnh.testnet", "token_id": 0, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
+   near call nearhub-nft.duongnh.testnet nft_transfer '{"receiver_id": "zuongnh.testnet", "token_id": 1000000000, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
    ```
 
 8. `zuongnh.testnet` add approval for `duongnh.testnet` to transfer his token
 
    ```
-   near call nearhub-nft.duongnh.testnet nft_approve '{"token_id": 0, "account_id": "duongnh.testnet"}' --deposit 0.01 --accountId zuongnh.testnet
+   near call nearhub-nft.duongnh.testnet nft_approve '{"token_id": 1000000000, "account_id": "duongnh.testnet"}' --deposit 0.01 --accountId zuongnh.testnet
    ```
 
 9. View the token we just add approval
@@ -201,13 +201,13 @@ near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duon
 10. Use `duongnh.testnet` to transfer token back to `duongnh.testnet` (although token's owner is `zuongnh.testnet`, but since `duongnh.testnet` has been approved to transfer the NFT so it can transfer the NFT)
 
 ```
-near call nearhub-nft.duongnh.testnet nft_transfer '{"receiver_id": "duongnh.testnet", "token_id": 0, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
+near call nearhub-nft.duongnh.testnet nft_transfer '{"receiver_id": "duongnh.testnet", "token_id": 1000000000, "approval_id": 0}' --accountId duongnh.testnet --depositYocto 1
 ```
 
 11. View if an account is approved or not
 
 ```
-near view nearhub-nft.duongnh.testnet nft_is_approved '{"token_id": 0, "approved_account_id": "duongnh.testnet", "approval_id": 1}'
+near view nearhub-nft.duongnh.testnet nft_is_approved '{"token_id": 1000000000, "approved_account_id": "duongnh.testnet", "approval_id": 1}'
 ```
 
 ---
