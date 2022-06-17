@@ -172,16 +172,14 @@ impl NFTContract {
     }
 
     // Lấy danh sách token (có pagination)
-    pub fn nft_tokens(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<JsonToken> {
+    pub fn nft_tokens(&self, from_index: Option<u64>, limit: Option<u64>) -> Vec<JsonToken> {
         let collection_keys = self.token_metadata_by_id.keys_as_vector();
-
-        let start = u128::from(from_index.unwrap_or(U128(0)));
 
         // Duyệt tất cả các keys -> Trả về JsonToken
         collection_keys
             .iter()
-            .skip(start as usize) // Pagination
-            .take(limit.unwrap_or(0) as usize) // Pagination
+            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .take(limit.unwrap_or(10) as usize) // Pagination
             .map(|token_id| self.nft_token(token_id.clone()).unwrap())
             .collect()
     }
@@ -190,7 +188,7 @@ impl NFTContract {
     pub fn nft_tokens_for_owner(
         &self,
         account_id: AccountId,
-        from_index: Option<U128>,
+        from_index: Option<u64>,
         limit: Option<u64>,
     ) -> Vec<JsonToken> {
         let token_keys = self.tokens_per_owner.get(&account_id);
@@ -201,13 +199,11 @@ impl NFTContract {
             return vec![];
         };
 
-        let start = u128::from(from_index.unwrap_or(U128(0)));
-
         // Duyệt tất cả các keys -> Trả về JsonToken
         keys.as_vector()
             .iter()
-            .skip(start as usize) // Pagination
-            .take(limit.unwrap_or(0) as usize) // Pagination
+            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .take(limit.unwrap_or(10) as usize) // Pagination
             .map(|token_id| self.nft_token(token_id.clone()).unwrap())
             .collect()
     }

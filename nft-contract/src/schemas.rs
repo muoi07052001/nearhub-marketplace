@@ -87,15 +87,13 @@ impl NFTContract {
     }
 
     // Lấy danh sách tất cả Schemas trong Contract
-    pub fn get_all_schemas(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<Schema> {
-        let start = u128::from(from_index.unwrap_or(U128(0)));
-
+    pub fn get_all_schemas(&self, from_index: Option<u64>, limit: Option<u64>) -> Vec<Schema> {
         // Duyệt tất cả các keys -> Trả về Collection
         // self.collections_by_id.values_as_vector().to_vec()
         self.schemas_by_id
             .iter()
-            .skip(start as usize)
-            .take(limit.unwrap() as usize)
+            .skip(from_index.unwrap_or(0) as usize)
+            .take(limit.unwrap_or(10) as usize)
             .map(|(schema_id, _schema)| self.schemas_by_id.get(&schema_id).unwrap())
             .collect()
     }
@@ -104,7 +102,7 @@ impl NFTContract {
     pub fn get_all_schemas_by_collection(
         &self,
         collection_name: CollectionName,
-        from_index: Option<U128>,
+        from_index: Option<u64>,
         limit: Option<u64>,
     ) -> Vec<Schema> {
         // Check collection id có tồn tại không
@@ -113,16 +111,14 @@ impl NFTContract {
             "Collection does not exist"
         );
 
-        let start = u128::from(from_index.unwrap_or(U128(0)));
-
         let mut result = Vec::<Schema>::new();
 
         // Duyệt tất cả các keys -> Trả về Collection
         let schemas_set_for_owner: Vec<Schema> = self
             .schemas_by_id
             .keys()
-            .skip(start as usize) // Pagination
-            .take(limit.unwrap_or(0) as usize) // Pagination
+            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .take(limit.unwrap_or(10) as usize) // Pagination
             .map(|schema_id| self.schemas_by_id.get(&schema_id).unwrap())
             .collect();
 

@@ -206,15 +206,13 @@ impl NFTContract {
     }
 
     // Lấy danh sách tất cả Lootboxes trong Contract
-    pub fn get_all_lootboxes(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<Lootbox> {
-        let start = u128::from(from_index.unwrap_or(U128(0)));
-
+    pub fn get_all_lootboxes(&self, from_index: Option<u64>, limit: Option<u64>) -> Vec<Lootbox> {
         // Duyệt tất cả các keys -> Trả về Collection
         // self.collections_by_id.values_as_vector().to_vec()
         self.lootboxes_by_id
             .iter()
-            .skip(start as usize)
-            .take(limit.unwrap() as usize)
+            .skip(from_index.unwrap_or(0) as usize)
+            .take(limit.unwrap_or(10) as usize)
             .map(|(lootbox_id, _lootbox)| self.lootboxes_by_id.get(&lootbox_id).unwrap())
             .collect()
     }
@@ -223,7 +221,7 @@ impl NFTContract {
     pub fn get_all_lootboxes_by_collection(
         &self,
         collection_name: CollectionName,
-        from_index: Option<U128>,
+        from_index: Option<u64>,
         limit: Option<u64>,
     ) -> Vec<Lootbox> {
         // Check collection id có tồn tại không
@@ -232,16 +230,14 @@ impl NFTContract {
             "Collection does not exist"
         );
 
-        let start = u128::from(from_index.unwrap_or(U128(0)));
-
         let mut result = Vec::<Lootbox>::new();
 
         // Duyệt tất cả các keys -> Trả về Collection
         let lootboxes_set_for_owner: Vec<Lootbox> = self
             .lootboxes_by_id
             .keys()
-            .skip(start as usize) // Pagination
-            .take(limit.unwrap_or(0) as usize) // Pagination
+            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .take(limit.unwrap_or(10) as usize) // Pagination
             .map(|lootbox_id| self.lootboxes_by_id.get(&lootbox_id).unwrap())
             .collect();
 
