@@ -9,6 +9,7 @@ impl NFTContract {
         lootbox_name: String,
         description: String,
         collection_name: CollectionName,
+        img: Option<String>,
         unlock_time: Timestamp,
         display_data: Option<String>,
         config: LootboxConfig,
@@ -46,6 +47,7 @@ impl NFTContract {
         let new_lootbox = Lootbox {
             lootbox_id,
             lootbox_name,
+            img,
             description,
             collection_id: collection_of_lootbox_id,
             collection_name,
@@ -65,6 +67,32 @@ impl NFTContract {
         refund_deposit(after_storage_usage - before_storage_usage);
 
         new_lootbox
+    }
+
+    #[payable]
+    pub fn mint_lootbox(&mut self, lootbox_id: LootboxId, receiver_id: AccountId) {
+        let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
+
+        // Check if the person who call this function is the Collection's owner or not
+        let lootbox = self
+            .lootboxes_by_id
+            .get(&lootbox_id)
+            .expect("Lootbox does not exist");
+        let collection = self
+            .collections_by_name
+            .get(&lootbox.collection_name)
+            .expect("Collection does not exist");
+        assert_eq!(
+            collection.owner_id,
+            env::predecessor_account_id(),
+            "Only this Lootbox's owner can call this function"
+        );
+
+        self.internal_lootbox_nft_mint(lootbox_id, receiver_id);
+
+        let after_storage_usage = env::storage_usage();
+        // Refund NEAR
+        refund_deposit(after_storage_usage - before_storage_usage);
     }
 
     // Unbox Lootbox -> Mint NFTs base on Config (Ratio)
@@ -228,5 +256,86 @@ impl NFTContract {
             }
         }
         result
+    }
+
+    // -------------------------------- Enumerations --------------------------------
+    // Lấy thông tin 1 lootbox_nft dưới dạng JsonToken
+    pub fn lootbox_nft(&self, lootbox_nft_id: LootboxNftId) -> Option<JsonLootboxNft> {
+        let lootbox_nft = self.lootbox_nfts_by_id.get(&lootbox_nft_id);
+
+        if let Some(lootbox_nft) = lootbox_nft {
+            let metadata = self
+                .lootbox_nft_metadata_by_id
+                .get(&lootbox_nft_id)
+                .unwrap();
+
+            Some(JsonLootboxNft {
+                owner_id: lootbox_nft.owner_id, 
+                lootbox_nft_id: lootbox_nft.lootbox_nft_id, 
+                lootbox_id: lootbox_nft.lootbox_id, 
+                lootbox_nft_by_lootbox_id: lootbox_nft.lootbox_nft_by_lootbox_id, 
+                collection_id: lootbox_nft.collection_id, 
+                collection_name: lootbox_nft.collection_name, 
+                metadata: metadata,
+                approved_account_ids: lootbox_nft.approved_account_ids, 
+                next_approval_id: lootbox_nft.next_approval_id,
+            })
+        } else {
+            None
+        }
+    }
+
+    // Lấy tổng số Lootbox NFT đang có trong contract
+    pub fn lootbox_nft_total_supply(&self) -> U128 {
+        // Đếm tổng số lượng id đang có trong token_metadata_by_id
+        U128(self.lootbox_nft_metadata_by_id.len() as u128)
+    }
+
+    // Lấy tổng số Lootbox NFT đang có của account nào đó
+    pub fn lootbox_nft_supply_for_owner(&self, account_id: AccountId) -> U128 {
+        let lootbox_nft_for_owner_set = self.lootbox_nfts_per_owner.get(&account_id);
+
+        if let Some(lootbox_nft_for_owner_set) = lootbox_nft_for_owner_set {
+            U128(lootbox_nft_for_owner_set.len() as u128)
+        } else {
+            U128(0)
+        }
+    }
+
+    // Lấy danh sách Lootbox NFT (có pagination)
+    pub fn lootbox_nfts(&self, from_index: Option<u64>, limit: Option<u64>) -> Vec<JsonLootboxNft> {
+        let collection_keys = self.lootbox_nft_metadata_by_id.keys_as_vector();
+
+        // Duyệt tất cả các keys -> Trả về JsonToken
+        collection_keys
+            .iter()
+            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .take(limit.unwrap_or(10) as usize) // Pagination
+            .map(|lootbox_nft_id| self.lootbox_nft(lootbox_nft_id.clone()).unwrap())
+            .collect()
+    }
+
+    // Lấy danh sách Lootbox NFT của account nào đó (có pagination)
+    pub fn lootbox_nfts_for_owner(
+        &self,
+        account_id: AccountId,
+        from_index: Option<u64>,
+        limit: Option<u64>,
+    ) -> Vec<JsonLootboxNft> {
+        let lootbox_nft_keys = self.lootbox_nfts_per_owner.get(&account_id);
+
+        let keys = if let Some(lootbox_nft_keys) = lootbox_nft_keys {
+            lootbox_nft_keys
+        } else {
+            return vec![];
+        };
+
+        // Duyệt tất cả các keys -> Trả về JsonToken
+        keys.as_vector()
+            .iter()
+            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .take(limit.unwrap_or(10) as usize) // Pagination
+            .map(|lootbox_nft_id| self.lootbox_nft(lootbox_nft_id.clone()).unwrap())
+            .collect()
     }
 }

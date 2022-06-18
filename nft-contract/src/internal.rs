@@ -27,6 +27,32 @@ impl NFTContract {
         self.tokens_per_owner.insert(account_id, &tokens_set);
     }
 
+    // Thêm 1 Lootbox NFT vào danh sách sở hữu bởi owner
+    pub(crate) fn internal_add_lootbox_nft_to_owner(
+        &mut self,
+        lootbox_nft_id: &LootboxNftId,
+        account_id: &AccountId,
+    ) {
+        // Nếu account_id đã có danh sách Lootbox NFT rồi, thì sẽ lấy danh sách Lootbox NFT đang có
+        // Nếu account_id chưa có danh sách Lootbox NFT (account_id chưa có trong lootbox_nfts_per_owner) thì tạo mới lootbox_nfts_set
+        let mut lootbox_nfts_set = self.lootbox_nfts_per_owner.get(account_id).unwrap_or_else(|| {
+            UnorderedSet::new(
+                StorageKey::TokensPerOwnerInnerKey {
+                    account_id_hash: hash_account_id(account_id),
+                }
+                .try_to_vec()
+                .unwrap(),
+            )
+        });
+
+        // Thêm token vào danh sách sở hữu của account_id
+        lootbox_nfts_set.insert(&lootbox_nft_id);
+
+        // Update dữ liệu on-chain
+        self.lootbox_nfts_per_owner.insert(account_id, &lootbox_nfts_set);
+    }
+
+
     // Xoá token khỏi owner
     pub(crate) fn internal_remove_token_from_owner(
         &mut self,
@@ -238,6 +264,7 @@ impl NFTContract {
             extra: template.immutable_data.extra_immutable_data.clone(),
             reference: None,
             reference_hash: None,
+            nft_type: "NFT".to_string(),
         };
 
         self.token_metadata_by_id.insert(&token_id, &metadata);
@@ -268,5 +295,88 @@ impl NFTContract {
         template.issued_supply += 1;
         // Update data of template
         self.templates_by_id.insert(&template_id, &template);
+    }
+
+    pub(crate) fn internal_lootbox_nft_mint(
+        &mut self,
+        lootbox_id: LootboxId,
+        receiver_id: AccountId,
+    ) {
+        let lootbox_nft_id = DEFAULT_LOOTBOX_NFT_ID + self.lootbox_nfts_by_id.len() as u32; // TokeId: 1000000001, ...
+
+        // Lấy ra stt của NFT Lootbox hiện tại trong Lootbox này
+        let mut lootbox_nft_by_lootbox_id = self
+            .lootbox_nft_by_lootbox_id_counter
+            .get(&lootbox_id)
+            .expect("Not found Lootbox");
+
+        // Get the information of the Lootbox
+        let lootbox = self.lootboxes_by_id.get(&lootbox_id).expect("Not found Lootbox");
+        let collection_of_lootbox = self.collections_by_name.get(&lootbox.collection_name).expect("Not found Collection");
+
+        // Tạo NFT mới
+        let lootbox_nft = LootboxNft {
+            owner_id: receiver_id.clone(),
+            lootbox_nft_id,
+            lootbox_id,
+            lootbox_nft_by_lootbox_id,
+            collection_id: collection_of_lootbox.collection_id,
+            collection_name: collection_of_lootbox.collection_name,
+            approved_account_ids: HashMap::default(),
+            next_approval_id: 0,
+        };
+
+        // Nếu token_id đã tồn tại trong list tokens_by_id thì báo lỗi
+        // Trong LookupMap, nếu key chưa tồn tại trong map -> Hàm insert return None
+        assert!(
+            self.lootbox_nfts_by_id.insert(&lootbox_nft_id, &lootbox_nft).is_none(),
+            "NFT Lootbox already exists"
+        );
+
+        // Add token metadata due to Template's immutable data
+        let metadata = TokenMetadata {
+            title: lootbox.display_data.clone(), // TODO: Define name in display_data
+            description: None,
+            media: lootbox.img.clone(),
+            media_hash: None,
+            copies: None,
+            issued_at: Some(env::block_timestamp()),
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: None,
+            reference: None,
+            reference_hash: None,
+            nft_type: "Lootbox".to_string(),
+        };
+
+        self.lootbox_nft_metadata_by_id.insert(&lootbox_nft_id, &metadata);
+
+        // Thêm Lootbox NFT vào danh sách sở hữu bởi owner
+        self.internal_add_lootbox_nft_to_owner(&lootbox_nft_id, &receiver_id);
+
+        // Update stt của Lootbox NFT hiện tại trong lootbox_nft_by_lootbox_id_counter
+        lootbox_nft_by_lootbox_id += 1;
+        self.lootbox_nft_by_lootbox_id_counter
+            .insert(&lootbox_id, &lootbox_nft_by_lootbox_id);
+
+        // -------------------------------------------------------------------
+        // NFT MINT LOG
+        let nft_mint_log: EventLog = EventLog {
+            standard: "nep171".to_string(),
+            version: "1.0.0".to_string(),
+            event: EventLogVariant::NftMint(vec![NftMintLog {
+                owner_id: receiver_id.to_string(),
+                token_ids: vec![lootbox_nft_id.to_string()],
+                memo: None,
+            }]),
+        };
+        env::log(&nft_mint_log.to_string().as_bytes());
+        // -------------------------------------------------------------------
+
+        // // Increase issued_supply of this template by 1
+        // template.issued_supply += 1;
+        // // Update data of template
+        // self.templates_by_id.insert(&template_id, &template);
     }
 }
