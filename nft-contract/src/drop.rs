@@ -104,11 +104,11 @@ impl NFTContract {
         new_drop
     }
 
-    // Add 1 account to Drop Sale's approved_account_ids -> They can purchase the Drop Sale
+    // Add accounts to Drop Sale's approved_account_ids -> They can purchase the Drop Sale
     // Only the owner of the Collection can add
     // Only applied for non-public Drop Sale
     #[payable]
-    pub fn drop_add_whitelist_account(&mut self, drop_id: DropId, account_id: AccountId) {
+    pub fn drop_add_whitelist_account(&mut self, drop_id: DropId, account_ids: Vec<AccountId>) {
         assert_at_least_one_yocto();
 
         let mut drop = self
@@ -127,37 +127,38 @@ impl NFTContract {
             "Only owner can add an account to whitelist for this Drop Sale"
         );
 
-        // Cannot add the owner to the approval_account_ids
-        assert_ne!(
-            &account_id, &drop.owner_id,
-            "Cannot add the owner his self to the approval list"
-        );
+        for account_id in account_ids.iter() {
+            // Cannot add the owner to the approval_account_ids
+            assert_ne!(
+                account_id, &drop.owner_id,
+                "Cannot add the owner his self to the approval list"
+            );
+            assert!(
+                drop.approved_account_ids.get(account_id).is_none(),
+                "Account already approved for purchase this Drop Sale"
+            );
 
-        assert!(
-            drop.approved_account_ids.get(&account_id).is_none(),
-            "Account already approved for purchase this Drop Sale"
-        );
+            let approval_id = drop.next_approval_id;
+            // Check whether this account has been approved or not
+            // Add the account to approved_account_ids list
+            let is_new_approval = drop
+                .approved_account_ids
+                .insert(account_id.clone(), approval_id)
+                .is_none();
 
-        let approval_id = drop.next_approval_id;
-        // Check whether this account has been approved or not
-        // Add the account to approved_account_ids list
-        let is_new_approval = drop
-            .approved_account_ids
-            .insert(account_id.clone(), approval_id)
-            .is_none();
+            // If add a new account to whitelist -> Increase the storage data -> User should pay
+            let storage_used = if is_new_approval {
+                bytes_for_approved_account_id(account_id)
+            } else {
+                0
+            };
 
-        // If add a new account to whitelist -> Increase the storage data -> User should pay
-        let storage_used = if is_new_approval {
-            bytes_for_approved_account_id(&account_id)
-        } else {
-            0
-        };
+            drop.next_approval_id += 1;
+            self.drops_by_id.insert(&drop_id, &drop);
 
-        drop.next_approval_id += 1;
-        self.drops_by_id.insert(&drop_id, &drop);
-
-        // Refund if user deposit more NEAR than needed
-        refund_deposit(storage_used);
+            // Refund if user deposit more NEAR than needed
+            refund_deposit(storage_used);
+        }
     }
 
     // Kiểm tra account có tồn tại trong list approve để mua Drop Sale ko

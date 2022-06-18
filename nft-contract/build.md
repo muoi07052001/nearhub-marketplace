@@ -142,7 +142,7 @@ near view nearhub-nft.duongnh.testnet get_template_by_id '{"template_id": 0}'
 21. Mint an NFT:
 
 ```
-near call nearhub-nft.duongnh.testnet nft_mint '{"collection_name": "Game", "schema_id": 0, "template_id": 0, "metadata":{"title": "ZUONG SABER", "description": "Zuong saber", "media": "https://bafkreibhsxpr4qbjqure75n6q6ywulozmb6e2tnedloq6v5em24f6nhmgm.ipfs.dweb.link/"}, "receiver_id": "duongnh.testnet"}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet nft_mint '{"collection_name": "Game", "schema_id": 0, "template_id": 0, "receiver_id": "duongnh.testnet"}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 22. View the token (NFT) we just minted
@@ -294,7 +294,7 @@ near view nearhub-nft.duongnh.testnet get_drop_by_id '{"drop_id": 0}'
 
 34. Add 1 account to Drop Sale's Whitelist -> They can purchase the Drop Sale
 ```
-near call nearhub-nft.duongnh.testnet drop_add_whitelist_account '{"drop_id": 0, "account_id": "zuongnh.testnet"}' --accountId duongnh.testnet --deposit 0.01
+near call nearhub-nft.duongnh.testnet drop_add_whitelist_account '{"drop_id": 0, "account_ids": ["zuongnh.testnet"]}' --accountId duongnh.testnet --deposit 0.01
 ```
 
 35. Check if an account in the Drop Sale's Whitelist
