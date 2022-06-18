@@ -139,32 +139,13 @@ impl NFTContract {
                 .get(template_id)
                 .expect("Template id does not exists");
 
-            // ----------------------------------------------
-            // ------------- TODO: Create Metadata -------------
-            // ----------------------------------------------
-            let metadata: TokenMetadata = TokenMetadata {
-                title: None,
-                description: None,
-                media: None,
-                media_hash: None,
-                copies: None,
-                issued_at: None,
-                expires_at: None,
-                starts_at: None,
-                updated_at: None,
-                // extra: Some("{\"attack\": 10}".to_string()),
-                extra: None,
-                reference: None,
-                reference_hash: None,
-            };
-
             // Mint ra NFT dựa trên result (template_id)
             // Chuyển NFT cho receiver_id
             self.nft_mint(
                 lootbox.collection_name.clone(),
                 template.schema_id,
                 template.template_id,
-                metadata.clone(),
+                // metadata.clone(),
                 receiver_id.clone(),
             );
         }

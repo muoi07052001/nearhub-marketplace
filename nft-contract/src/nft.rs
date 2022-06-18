@@ -17,7 +17,7 @@ impl NFTContract {
         collection_name: CollectionName,
         schema_id: SchemaId,
         template_id: TemplateId,
-        metadata: TokenMetadata,
+        // extra_metadata: TokenMetadata,
         receiver_id: AccountId,
     ) {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
@@ -92,7 +92,22 @@ impl NFTContract {
             "Token already exists"
         );
 
-        // Thêm token metadata
+        // Add token metadata due to Template's immutable data
+        let metadata = TokenMetadata {
+            title: Some(template.immutable_data.name.clone()),
+            description: None,
+            media: template.immutable_data.img.clone(),
+            media_hash: None,
+            copies: None,
+            issued_at: Some(env::block_timestamp()),
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: template.immutable_data.extra_immutable_data.clone(),
+            reference: None,
+            reference_hash: None,
+        };
+
         self.token_metadata_by_id.insert(&token_id, &metadata);
 
         // Thêm token vào danh sách sở hữu bởi owner
