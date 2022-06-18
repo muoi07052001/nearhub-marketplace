@@ -1,6 +1,5 @@
 /**
- * Quản lý các account approved thông qua các function
- * Cập nhật lại transfer để cho phép các tài khoản trong list account_approved sẽ được phép transfer token thay owner
+ * Manage account approved through functions
  */
 use crate::*;
 
@@ -8,27 +7,26 @@ const GAS_FOR_NFT_APPROVE: Gas = 10_000_000_000_000;
 const NO_DEPOSIT: Balance = 0;
 
 pub trait NonFungibleTokenApproval {
-    // Cho phép account khác (Marketplace) quyền chuyển token của mình cho người khác
+    // Let other accounts (Marketplace) to transfer token to another
     fn nft_approve(&mut self, token_id: TokenId, account_id: AccountId, msg: Option<String>);
-    // Cho phép account khác (Marketplace) quyền chuyển token thuộc collection của mình cho người khác
+    // Let other accounts (Marketplace) to transfer token of 1 Collection to another
     fn nft_approve_for_collection(
         &mut self,
         collection_name: CollectionName,
         account_id: AccountId,
         msg: Option<String>,
     );
-    // Check xem account đã có quyền chuyển Token chưa
-    // Nếu approve account_id hợp lệ -> return true, else return false
+    // Check if the account has the approval to transfer Token or not
+    // If approve account_id is valid -> return true, else return false
     fn nft_is_approved(
         &self,
         token_id: TokenId,
         approved_account_id: AccountId,
         approval_id: Option<u64>,
     ) -> bool;
-    // Xoá quyền của 1 account đối với 1 token
+    // Delete approval of 1 account from transfering this token
     fn nft_revoke(&mut self, token_id: TokenId, account_id: AccountId);
-    // Xoá toàn bộ các contract đã aprroved khỏi 1 token nào đó
-    // (Xoá toàn bộ quyền transfer token của tất cả contract đối vói 1 token nào đó)
+    // Delete approval of all accounts from transfering this token
     fn nft_revoke_all(&mut self, token_id: TokenId);
 }
 
@@ -36,19 +34,19 @@ pub trait NonFungibleTokenApproval {
 pub trait NonFungibleTokenApprovalReceiver {
     // Market Contract: A
     // NFT Contract: B
-    // Khi Contract A call approve trên Contract B, bên B sẽ gọi lại hàm
-    // nft_on_approve trên Contract A để phía A xử lý ngược lại (đăng bán, cập nhật thông tin trạng thái, ...)
+    // When Contract A call approve on Contract B -> B will call back function
+    // nft_on_approve on Contract A -> A do some actions (sale, update information, ...)
     fn nft_on_approve(
         &mut self,
         token_id: TokenId,
         owner_id: AccountId,
         approval_id: u64,
-        token_by_template_id: TokenId, // Stt của NFT trong template nó thuộc vào
-        collection_id: CollectionId,   // Id của Collection mà NFT thuộc vào
-        collection_name: CollectionName, // Tên Collection mà NFT thuộc vào
-        schema_id: SchemaId,           // Id của Schema mà NFT thuộc vào
-        schema_name: SchemaName,       // Tên Schema mà NFT thuộc vào
-        template_id: TemplateId,       // Tên Template mà NFT thuộc vào
+        token_by_template_id: TokenId, // Number of NFT belongs to the Template
+        collection_id: CollectionId,   // Id of the Collection that the NFT belongs to
+        collection_name: CollectionName, // Name of the Collection that the NFT belongs to
+        schema_id: SchemaId,           // Id of the Schema that the NFT belongs to
+        schema_name: SchemaName,       // Name of the Schema that the NFT belongs to
+        template_id: TemplateId,       // Name of the Template that the NFT belongs to
         msg: String,
     );
 
@@ -63,35 +61,35 @@ pub trait NonFungibleTokenApprovalReceiver {
 
 #[near_bindgen]
 impl NonFungibleTokenApproval for NFTContract {
-    // Thêm quyền chuyển token cho account_id
-    // Bổ sung account_id vào list approved_account_ids của Token
-    // Note: Vì function này sẽ làm tăng data trong Contract -> Thêm payable để user deposit thêm
+    // Add Token transfer approval to this account_id
+    // Add account_id to list approved_account_ids of the Token
+    // Note: Because this function will increase the data inside the Contract -> Add payable so the user have to deposit to cover storage
     // Account ID => market contract id
     #[payable]
     fn nft_approve(&mut self, token_id: TokenId, account_id: AccountId, msg: Option<String>) {
         assert_at_least_one_yocto();
 
-        // Kiểm tra xem token có tồn tại hay không
+        // Check if the token has exists or not
         let mut token = self.tokens_by_id.get(&token_id).expect("Not found token");
 
-        // Check xem sender có phải token owner không
-        // Chỉ owner mới có quyền approved cho account khác
+        // check if the sender id token's owner or not
+        // only owner can add approval to other account
         assert_eq!(
             &env::predecessor_account_id(),
             &token.owner_id,
             "Predecessor must be the token owner"
         );
 
-        // Thực hiện approve
+        // Approving
         let approval_id = token.next_approval_id;
-        // Check xem account này đã tồn tại trong list approved_account_ids chưa
-        // Add account vào list các tài khoản có thể transfer Token này
+        // Check if this account has existed inside the list approved_account_ids or not
+        // Add account into the list which can transfer this Token
         let is_new_approval = token
             .approved_account_ids
             .insert(account_id.clone(), approval_id)
             .is_none();
 
-        // Nếu approve cho account mới -> Tăng dung lượng data -> tính phí cho user
+        // If approve for new account -> Increase the data storage -> User have to pay to cover storage
         let storage_used = if is_new_approval {
             bytes_for_approved_account_id(&account_id)
         } else {
@@ -101,11 +99,11 @@ impl NonFungibleTokenApproval for NFTContract {
         token.next_approval_id += 1;
         self.tokens_by_id.insert(&token_id, &token);
 
-        // Refund nếu user nạp vào thừa phí lưu trữ
+        // Refund if user deposit more than needed
         refund_deposit(storage_used);
 
-        // Nếu có gắn msg -> Thực hiện Cross Contract Call sang market contract
-        // msg chứa thông tin: giá, hành động, hàm, ...
+        // If attached msg -> Doing Cross Contract Call to Market Contract
+        // msg include: price, action, function, ...
         if let Some(msg) = msg {
             ext_non_fungible_token_approval_receiver::nft_on_approve(
                 token_id,
@@ -126,9 +124,9 @@ impl NonFungibleTokenApproval for NFTContract {
         }
     }
 
-    // Thêm quyền chuyển token thuộc 1 Collection cho account_id
-    // Bổ sung account_id vào list approved_account_ids của Collection
-    // Note: Vì function này sẽ làm tăng data trong Contract -> Thêm payable để user deposit thêm
+    // Add Token transfer approval to this account_id
+    // Add account_id to list approved_account_ids of the Token
+    // Note: Because this function will increase the data inside the Contract -> Add payable so the user have to deposit to cover storage
     // Account ID => market contract id
     #[payable]
     fn nft_approve_for_collection(
@@ -139,30 +137,30 @@ impl NonFungibleTokenApproval for NFTContract {
     ) {
         assert_at_least_one_yocto();
 
-        // Kiểm tra xem Collection có tồn tại hay không
+        // Check if the token has exists or not
         let mut collection = self
             .collections_by_name
             .get(&collection_name)
             .expect("Not found collection");
 
-        // Check xem sender có phải collection owner không
-        // Chỉ owner mới có quyền approved cho account khác
+        // check if the sender id token's owner or not
+        // only owner can add approval to other account
         assert_eq!(
             &env::predecessor_account_id(),
             &collection.owner_id,
             "Predecessor must be the Collection owner"
         );
 
-        // Thực hiện approve
+        // Approving
         let approval_id = collection.next_approval_id;
-        // Check xem account này đã tồn tại trong list approved_account_ids chưa
-        // Add account vào list các tài khoản có thể transfer Token này
+        // Check if this account has existed inside the list approved_account_ids or not
+        // Add account into the list which can transfer this Token
         let is_new_approval = collection
             .approved_account_ids
             .insert(account_id.clone(), approval_id)
             .is_none();
 
-        // Nếu approve cho account mới -> Tăng dung lượng data -> tính phí cho user
+        // If approve for new account -> Increase the data storage -> User have to pay to cover storage
         let storage_used = if is_new_approval {
             bytes_for_approved_account_id(&account_id)
         } else {
@@ -175,11 +173,11 @@ impl NonFungibleTokenApproval for NFTContract {
         self.collections_by_id
             .insert(&collection.collection_id, &collection);
 
-        // Refund nếu user nạp vào thừa phí lưu trữ
+        // Refund if user deposit more than needed
         refund_deposit(storage_used);
 
-        // Nếu có gắn msg -> Thực hiện Cross Contract Call sang market contract
-        // msg chứa thông tin: giá, hành động, hàm, ...
+        // If attached msg -> Doing Cross Contract Call to Market Contract
+        // msg include: price, action, function, ...
         if let Some(msg) = msg {
             ext_non_fungible_token_approval_receiver::nft_on_approve_for_collection(
                 collection.collection_name,
@@ -194,7 +192,8 @@ impl NonFungibleTokenApproval for NFTContract {
         }
     }
 
-    // Kiểm tra account có tồn tại trong list approve ko
+    // Check if this account has existed inside the list approved_account_ids or not
+    // Check if this account is able to transfer the NFT or not
     fn nft_is_approved(
         &self,
         token_id: TokenId,
@@ -204,7 +203,7 @@ impl NonFungibleTokenApproval for NFTContract {
         let token = self.tokens_by_id.get(&token_id).expect("Token not found");
         let approval = token.approved_account_ids.get(&approved_account_id);
 
-        // Nếu tồn tại account trong list approved_account_ids -> Check tiếp xem approval_id có đúng ko
+        // If has existed inside the list approved_account_ids -> Check if approval_id is valid or not
         if let Some(approval) = approval {
             if approval == &approval_id.unwrap() {
                 true
@@ -216,24 +215,24 @@ impl NonFungibleTokenApproval for NFTContract {
         }
     }
 
-    // Note: Khi xoá 1 account khỏi approved_list_ids -> Refund phí lưu trữ data mà user đã trả trước đó
+    // Note: When deleting 1 account from approved_list_ids -> Refund storage data fee that the user has deposited
     #[payable]
     fn nft_revoke(&mut self, token_id: TokenId, account_id: AccountId) {
         assert_one_yocto();
 
         let mut token = self.tokens_by_id.get(&token_id).expect("Not found token");
         let sender_id = env::predecessor_account_id();
-        // Check xem người gọi hàm revoke() có phải owner của token hay không
+        // Check if the person who call revoke() is the owner of this NFT or not
         assert_eq!(
             &sender_id, &token.owner_id,
             "Only owner of the NFT can call revoke function"
         );
 
-        // Nếu xoá quyền thành công
+        // If revoke success
         if token.approved_account_ids.remove(&account_id).is_some() {
-            // Refund lại số tiền đã deposit để lưu trữ data của user
+            // Refund the deposited amount to cover storage of the user before
             refund_approved_account_ids_iter(sender_id, [account_id].iter());
-            // Cập nhật lại danh sách tokens
+            // Update list tokens
             self.tokens_by_id.insert(&token_id, &token);
         }
     }
@@ -244,18 +243,18 @@ impl NonFungibleTokenApproval for NFTContract {
 
         let mut token = self.tokens_by_id.get(&token_id).expect("Not found token");
         let sender_id = env::predecessor_account_id();
-        // Check xem người gọi hàm revoke() có phải owner của token hay không
+        // Check if the person who call revoke() is the owner of this NFT or not
         assert_eq!(
             &sender_id, &token.owner_id,
             "Only owner of the NFT can call revoke function"
         );
 
         if !token.approved_account_ids.is_empty() {
-            // Refund lại số tiền mọi người đã deposit khi gọi hàm revoke_all()
+            // Refund the deposited amount of everyone when calling revoke_all()
             refund_approved_account_ids(sender_id, &token.approved_account_ids);
-            // Xoá toàn bộ list account đã approved cho token
+            // Delete all approved account of this token
             token.approved_account_ids.clear();
-            // Cập nhật lại danh sách tokens
+            // Update list tokens
             self.tokens_by_id.insert(&token_id, &token);
         }
     }
