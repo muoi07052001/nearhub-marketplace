@@ -11,6 +11,8 @@ use std::collections::HashMap;
 // use std::time::{SystemTime, UNIX_EPOCH};
 use near_sdk::Timestamp;
 
+const DEFAULT_TOKEN_ID: u32 = 1000000000; // MAX u32 = 4294967295
+
 pub type CollectionId = u32;
 pub type CollectionName = String;
 pub type SchemaId = u32;

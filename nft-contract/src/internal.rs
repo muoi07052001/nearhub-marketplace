@@ -146,4 +146,127 @@ impl NFTContract {
         // Return token cũ
         token
     }
+
+    // Internal mint NFTs
+    pub(crate) fn internal_nft_mint(
+        &mut self,
+        collection_name: CollectionName,
+        schema_id: SchemaId,
+        template_id: TemplateId,
+        receiver_id: AccountId,
+    ) {
+        let token_id = DEFAULT_TOKEN_ID + self.tokens_by_id.len() as u32; // TokeId: 1000000001, ...
+
+        // Lấy ra stt của NFT hiện tại trong Template này
+        let mut token_by_template_id = self
+            .token_by_template_id_counter
+            .get(&template_id)
+            .expect("Not found Template");
+
+        // Check collection_name có tồn tại không
+        // Lấy collection id từ name
+        let collection = self
+            .collections_by_name
+            .get(&collection_name)
+            .expect("Collection does not exists");
+        let collection_id = collection.collection_id;
+
+        // Check schema_id có tồn tại không
+        // Lấy schema name từ id
+        let schema = self
+            .schemas_by_id
+            .get(&schema_id)
+            .expect("Schema does not exists");
+        let schema_name = schema.schema_name;
+
+        // Check template_id có tồn tại không
+        // Lấy template name từ id
+        let mut template = self
+            .templates_by_id
+            .get(&template_id)
+            .expect("Template does not exists");
+        let _template_name = template.schema_name.clone();
+
+        // Check xem schema_id đó có thuộc collection_id đó không
+        assert_eq!(
+            schema.collection_name, collection_name,
+            "Schema does not belongs to this collection"
+        );
+        // Check xem template_id đó có thuộc schema_id đó không
+        assert_eq!(
+            template.schema_name, schema_name,
+            "Template does not belongs to this schema"
+        );
+
+        // Check if that template has issued all the NFTs or not
+        assert!(
+            template.issued_supply < template.max_supply,
+            "This template has issued all the NFTs"
+        );
+        // Tạo NFT mới
+        let token = Token {
+            owner_id: receiver_id,
+            token_id,
+            token_by_template_id,
+            collection_id,
+            collection_name,
+            schema_id,
+            schema_name,
+            template_id,
+            approved_account_ids: HashMap::default(),
+            next_approval_id: 0,
+        };
+
+        // Nếu token_id đã tồn tại trong list tokens_by_id thì báo lỗi
+        // Trong LookupMap, nếu key chưa tồn tại trong map -> Hàm insert return None
+        assert!(
+            self.tokens_by_id.insert(&token_id, &token).is_none(),
+            "Token already exists"
+        );
+
+        // Add token metadata due to Template's immutable data
+        let metadata = TokenMetadata {
+            title: Some(template.immutable_data.name.clone()),
+            description: None,
+            media: template.immutable_data.img.clone(),
+            media_hash: None,
+            copies: Some(template.max_supply as u64),
+            issued_at: Some(env::block_timestamp()),
+            expires_at: None,
+            starts_at: None,
+            updated_at: None,
+            extra: template.immutable_data.extra_immutable_data.clone(),
+            reference: None,
+            reference_hash: None,
+        };
+
+        self.token_metadata_by_id.insert(&token_id, &metadata);
+
+        // Thêm token vào danh sách sở hữu bởi owner
+        self.internal_add_token_to_owner(&token_id, &token.owner_id);
+
+        // Update stt của NFT hiện tại trong token_by_template_id_counter
+        token_by_template_id += 1;
+        self.token_by_template_id_counter
+            .insert(&template_id, &token_by_template_id);
+
+        // -------------------------------------------------------------------
+        // NFT MINT LOG
+        let nft_mint_log: EventLog = EventLog {
+            standard: "nep171".to_string(),
+            version: "1.0.0".to_string(),
+            event: EventLogVariant::NftMint(vec![NftMintLog {
+                owner_id: token.owner_id.to_string(),
+                token_ids: vec![token_id.to_string()],
+                memo: None,
+            }]),
+        };
+        env::log(&nft_mint_log.to_string().as_bytes());
+        // -------------------------------------------------------------------
+
+        // Increase issued_supply of this template by 1
+        template.issued_supply += 1;
+        // Update data of template
+        self.templates_by_id.insert(&template_id, &template);
+    }
 }

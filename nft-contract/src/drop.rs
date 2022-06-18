@@ -410,7 +410,7 @@ impl NFTContract {
         for i in 0..drop.template_ids.len() {
             let template = self.templates_by_id.get(&drop.template_ids[i]).unwrap();
             for _j in 0..claim_amount {
-                self.nft_mint(
+                self.internal_nft_mint(
                     drop.collection_name.clone(),
                     template.schema_id,
                     template.template_id,

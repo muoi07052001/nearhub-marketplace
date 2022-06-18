@@ -141,7 +141,7 @@ impl NFTContract {
 
             // Mint ra NFT dựa trên result (template_id)
             // Chuyển NFT cho receiver_id
-            self.nft_mint(
+            self.internal_nft_mint(
                 lootbox.collection_name.clone(),
                 template.schema_id,
                 template.template_id,
