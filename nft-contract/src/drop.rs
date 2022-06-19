@@ -415,6 +415,7 @@ impl NFTContract {
                     template.schema_id,
                     template.template_id,
                     // metadata.clone(),
+                    Some(1),
                     claimer_account.clone(),
                 );
             }

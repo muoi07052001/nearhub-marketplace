@@ -72,7 +72,7 @@ impl NFTContract {
     }
 
     #[payable]
-    pub fn mint_lootbox(&mut self, lootbox_id: LootboxId, receiver_id: AccountId) {
+    pub fn mint_lootbox(&mut self, lootbox_id: LootboxId, mint_number: Option<u32>, receiver_id: AccountId) {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
 
         // Check if the person who call this function is the Collection's owner or not
@@ -90,7 +90,7 @@ impl NFTContract {
             "Only this Lootbox's owner can call this function"
         );
 
-        self.internal_lootbox_nft_mint(lootbox_id, receiver_id);
+        self.internal_lootbox_nft_mint(lootbox_id, mint_number, receiver_id);
 
         let after_storage_usage = env::storage_usage();
         // Refund NEAR
@@ -176,6 +176,7 @@ impl NFTContract {
                 template.schema_id,
                 template.template_id,
                 // metadata.clone(),
+                Some(1),
                 receiver_id.clone(),
             );
         }

@@ -16,6 +16,7 @@ impl NFTContract {
         schema_id: SchemaId,
         template_id: TemplateId,
         // extra_metadata: TokenMetadata,
+        mint_number: Option<u32>, // Number of NFTs user wants to mint at 1 time
         receiver_id: AccountId,
     ) {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
@@ -31,8 +32,8 @@ impl NFTContract {
             "Only this Collection's owner can call this function"
         );
 
-        self.internal_nft_mint(collection_name, schema_id, template_id, receiver_id);
-       
+        self.internal_nft_mint(collection_name, schema_id, template_id, mint_number, receiver_id);
+
         let after_storage_usage = env::storage_usage();
         // Refund NEAR
         refund_deposit(after_storage_usage - before_storage_usage);
