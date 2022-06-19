@@ -308,7 +308,7 @@ impl NFTContract {
         let mut lootbox_nft_by_lootbox_id = self
             .lootbox_nft_by_lootbox_id_counter
             .get(&lootbox_id)
-            .expect("Not found Lootbox");
+            .expect("Not found Lootbox NFT's number");
 
         // Get the information of the Lootbox
         let lootbox = self.lootboxes_by_id.get(&lootbox_id).expect("Not found Lootbox");

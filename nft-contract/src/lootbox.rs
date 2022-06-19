@@ -18,6 +18,8 @@ impl NFTContract {
 
         let lootbox_id = self.lootbox_id_counter;
 
+        self.lootbox_nft_by_lootbox_id_counter.insert(&lootbox_id, &0); // Khi tạo Lootbox -> Cho stt counter = 0
+
         // Check collection_id có tồn tại không
         // Lấy collection name từ id
         let collection_of_lootbox = self

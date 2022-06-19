@@ -217,7 +217,7 @@ near view nearhub-nft.duongnh.testnet nft_is_approved '{"token_id": 1000000000, 
 26. Create a Lootbox: (Belongs to a Collection)
 
 ```
-near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "img": "", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
 
 near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
 ```
