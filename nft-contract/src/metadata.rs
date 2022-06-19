@@ -67,12 +67,12 @@ pub struct TokenMetadata {
     pub nft_type: String, // Type of the NFT ("Lootbox" || "NFT")
 }
 
-pub trait NonFungibleTokenMetada {
+pub trait NonFungibleTokenMetadata {
     fn nft_metadata(&self) -> NFTContractMetadata;
 }
 
 #[near_bindgen]
-impl NonFungibleTokenMetada for NFTContract {
+impl NonFungibleTokenMetadata for NFTContract {
     fn nft_metadata(&self) -> NFTContractMetadata {
         self.metadata.get().unwrap()
     }
