@@ -254,7 +254,7 @@ near view nearhub-nft.duongnh.testnet get_all_lootboxes_by_collection '{"collect
 31. Unbox a Lootbox
 
 ```
-near call nearhub-nft.duongnh.testnet unbox_lootbox '{"lootbox_id": 0}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet unbox_lootbox '{"lootbox_nft_id": 1000000000}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 ---

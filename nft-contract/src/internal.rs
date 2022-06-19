@@ -183,7 +183,8 @@ impl NFTContract {
     ) {
         for _i in 0..mint_number.unwrap_or(1) {
             // Default: mint_number = 1
-            let token_id = DEFAULT_TOKEN_ID + self.tokens_by_id.len() as u32; // TokeId: 1000000001, ...
+            let token_id = DEFAULT_TOKEN_ID + self.token_id_counter; // TokeId: 1000000001, ...
+            self.token_id_counter += 1;
 
             // Lấy ra stt của NFT hiện tại trong Template này
             let mut token_by_template_id = self
@@ -309,7 +310,8 @@ impl NFTContract {
         for _i in 0..mint_number.unwrap_or(1) {
             // Default: mint_number = 1
 
-            let lootbox_nft_id = DEFAULT_TOKEN_ID + self.tokens_by_id.len() as u32; // TokeId: 1000000001, ...
+            let lootbox_nft_id = DEFAULT_TOKEN_ID + self.token_id_counter; // TokeId: 1000000001, ...
+            self.token_id_counter += 1;
 
             // Lấy ra stt của NFT Lootbox hiện tại trong Lootbox này
             let mut lootbox_nft_by_lootbox_id = self
@@ -355,7 +357,7 @@ impl NFTContract {
                 copies: None,
                 issued_at: Some(env::block_timestamp()),
                 expires_at: None,
-                starts_at: None,
+                starts_at: Some(lootbox.unlock_time),
                 updated_at: None,
                 extra: Some(serde_json::to_string(&lootbox.config).unwrap()),
                 reference: None,
