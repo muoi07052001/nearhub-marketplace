@@ -35,25 +35,21 @@ impl NFTContract {
     ) {
         // Nếu account_id đã có danh sách Lootbox NFT rồi, thì sẽ lấy danh sách Lootbox NFT đang có
         // Nếu account_id chưa có danh sách Lootbox NFT (account_id chưa có trong lootbox_nfts_per_owner) thì tạo mới lootbox_nfts_set
-        let mut lootbox_nfts_set =
-            self.lootbox_nfts_per_owner
-                .get(account_id)
-                .unwrap_or_else(|| {
-                    UnorderedSet::new(
-                        StorageKey::TokensPerOwnerInnerKey {
-                            account_id_hash: hash_account_id(account_id),
-                        }
-                        .try_to_vec()
-                        .unwrap(),
-                    )
-                });
+        let mut lootbox_nfts_set = self.tokens_per_owner.get(account_id).unwrap_or_else(|| {
+            UnorderedSet::new(
+                StorageKey::TokensPerOwnerInnerKey {
+                    account_id_hash: hash_account_id(account_id),
+                }
+                .try_to_vec()
+                .unwrap(),
+            )
+        });
 
         // Thêm token vào danh sách sở hữu của account_id
         lootbox_nfts_set.insert(&lootbox_nft_id);
 
         // Update dữ liệu on-chain
-        self.lootbox_nfts_per_owner
-            .insert(account_id, &lootbox_nfts_set);
+        self.tokens_per_owner.insert(account_id, &lootbox_nfts_set);
     }
 
     // Xoá token khỏi owner
@@ -313,7 +309,7 @@ impl NFTContract {
         for _i in 0..mint_number.unwrap_or(1) {
             // Default: mint_number = 1
 
-            let lootbox_nft_id = DEFAULT_LOOTBOX_NFT_ID + self.lootbox_nfts_by_id.len() as u32; // TokeId: 1000000001, ...
+            let lootbox_nft_id = DEFAULT_TOKEN_ID + self.tokens_by_id.len() as u32; // TokeId: 1000000001, ...
 
             // Lấy ra stt của NFT Lootbox hiện tại trong Lootbox này
             let mut lootbox_nft_by_lootbox_id = self
@@ -326,19 +322,17 @@ impl NFTContract {
                 .lootboxes_by_id
                 .get(&lootbox_id)
                 .expect("Not found Lootbox");
-            let collection_of_lootbox = self
-                .collections_by_name
-                .get(&lootbox.collection_name)
-                .expect("Not found Collection");
 
             // Tạo NFT mới
-            let lootbox_nft = LootboxNft {
+            let lootbox_nft = Token {
                 owner_id: receiver_id.clone(),
-                lootbox_nft_id,
-                lootbox_id,
-                lootbox_nft_by_lootbox_id,
-                collection_id: collection_of_lootbox.collection_id,
-                collection_name: collection_of_lootbox.collection_name,
+                token_id: lootbox_nft_id.clone(),
+                token_by_template_id: lootbox_nft_by_lootbox_id, // Stt của Lootbox NFT này trong Lootbox template
+                collection_id: lootbox.collection_id,
+                collection_name: lootbox.collection_name,
+                schema_id: lootbox.schema_id,
+                schema_name: lootbox.schema_name,
+                template_id: lootbox.lootbox_id, // Lootbox id
                 approved_account_ids: HashMap::default(),
                 next_approval_id: 0,
             };
@@ -346,7 +340,7 @@ impl NFTContract {
             // Nếu token_id đã tồn tại trong list tokens_by_id thì báo lỗi
             // Trong LookupMap, nếu key chưa tồn tại trong map -> Hàm insert return None
             assert!(
-                self.lootbox_nfts_by_id
+                self.tokens_by_id
                     .insert(&lootbox_nft_id, &lootbox_nft)
                     .is_none(),
                 "NFT Lootbox already exists"
@@ -354,7 +348,7 @@ impl NFTContract {
 
             // Add token metadata due to Template's immutable data
             let metadata = TokenMetadata {
-                title: lootbox.display_data.clone(), // TODO: Define name in display_data
+                title: Some(lootbox.lootbox_name), // TODO: Define name in display_data
                 description: None,
                 media: lootbox.img.clone(),
                 media_hash: None,
@@ -363,14 +357,13 @@ impl NFTContract {
                 expires_at: None,
                 starts_at: None,
                 updated_at: None,
-                extra: None,
+                extra: Some(serde_json::to_string(&lootbox.config).unwrap()),
                 reference: None,
                 reference_hash: None,
                 nft_type: "Lootbox".to_string(),
             };
 
-            self.lootbox_nft_metadata_by_id
-                .insert(&lootbox_nft_id, &metadata);
+            self.token_metadata_by_id.insert(&lootbox_nft_id, &metadata);
 
             // Thêm Lootbox NFT vào danh sách sở hữu bởi owner
             self.internal_add_lootbox_nft_to_owner(&lootbox_nft_id, &receiver_id);

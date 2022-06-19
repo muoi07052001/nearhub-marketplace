@@ -217,47 +217,15 @@ near view nearhub-nft.duongnh.testnet nft_is_approved '{"token_id": 1000000000, 
 26. Create a Lootbox: (Belongs to a Collection)
 
 ```
-near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "img": "", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
 
-near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "unlock_time": 0, "display_data": "", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 27. Mint a Lootbox NFT:
 ```
 near call nearhub-nft.duongnh.testnet mint_lootbox '{"lootbox_id": 0, "mint_number": 1, "receiver_id": "duongnh.testnet"}' --deposit 0.1 --accountId duongnh.testnet
 ```
-
-22. View the Lootbox NFT we just minted
-
-```
-near view nearhub-nft.duongnh.testnet lootbox_nft '{"lootbox_nft_id": 1000000000}'
-```
-
-23. View total Lootbox NFT supply in the NFTContract
-
-```
-near view nearhub-nft.duongnh.testnet lootbox_nft_total_supply
-```
-
-24. View total Lootbox NFT supply of an account `duongnh.testnet`
-
-```
-near view nearhub-nft.duongnh.testnet lootbox_nft_supply_for_owner '{"account_id": "duongnh.testnet"}'
-```
-
-25. View list of Lootbox NFTs of the Contract
-
-```
-near view nearhub-nft.duongnh.testnet lootbox_nfts '{"from_index": 0, "limit": 10}'
-```
-
-
-26. View list of Lootbox NFTs of an account `duongnh.testnet`
-
-```
-near view nearhub-nft.duongnh.testnet lootbox_nfts_for_owner '{"account_id": "duongnh.testnet", "from_index": 0, "limit": 10}'
-```
-
 
 28. View the total number of Lootboxes of the Contract:
 

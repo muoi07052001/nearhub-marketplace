@@ -75,6 +75,8 @@ pub struct Lootbox {
     pub description: String,          // Description của Lootbox
     pub collection_id: CollectionId,  // Id của Collection mà Lootbox thuộc vào
     pub collection_name: String,      // Collection mà Lootbox thuộc vào
+    pub schema_id: SchemaId,          // Id của Schema mà Lootbox thuộc vào
+    pub schema_name: SchemaName,      // Tên Schema mà Lootbox thuộc vào
     pub unlock_time: Timestamp,       // Thời điểm cho phép mở Lootbox
     pub display_data: Option<String>, // Dữ liệu cần thiết hiển thị cho Front-end (stringified JSON)
     pub config: LootboxConfig,        // Config độ random để ra các loại NFT
@@ -97,36 +99,4 @@ pub struct Slot {
 pub struct Outcome {
     pub template_id: TemplateId, // Tỷ lệ roll ra template id nào
     pub odds: u32,               // Trong khoảng (a, odds) thì roll ra template_id này
-}
-
-#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
-#[serde(crate = "near_sdk::serde")]
-pub struct LootboxNft {
-    pub owner_id: AccountId,                // Chủ sở hữu của NFT Lootbox
-    pub lootbox_nft_id: TokenId,            // Id của NFT Lootbox
-    pub lootbox_id: LootboxId,              // Id of the Lootbot that this NFT belongs to
-    pub lootbox_nft_by_lootbox_id: TokenId, // Stt của NFT Lootbox trong Lootbox nó thuộc vào
-    pub collection_id: CollectionId,        // Id của Collection mà NFT thuộc vào
-    pub collection_name: CollectionName,    // Tên Collection mà NFT thuộc vào
-    // pub schema_id: SchemaId,                // Id của Schema mà NFT thuộc vào
-    // pub schema_name: SchemaName,            // Tên Schema mà NFT thuộc vào
-    // pub template_id: TemplateId,            // Tên Template mà NFT thuộc vào
-
-    // pub metadata: TokenMetadata,                       // Metadata của NFT
-    pub approved_account_ids: HashMap<AccountId, u64>, // Danh sách các accounts được approved để transfer NFT Lootbox này
-    pub next_approval_id: u64,
-}
-
-#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
-#[serde(crate = "near_sdk::serde")]
-pub struct JsonLootboxNft {
-    pub owner_id: AccountId,                // Chủ sở hữu của NFT Lootbox
-    pub lootbox_nft_id: TokenId,            // Id của NFT Lootbox
-    pub lootbox_id: LootboxId,              // Id of the Lootbot that this NFT belongs to
-    pub lootbox_nft_by_lootbox_id: TokenId, // Stt của NFT Lootbox trong Lootbox nó thuộc vào
-    pub collection_id: CollectionId,        // Id của Collection mà NFT thuộc vào
-    pub collection_name: CollectionName,    // Tên Collection mà NFT thuộc vào
-    pub metadata: TokenMetadata,
-    pub approved_account_ids: HashMap<AccountId, u64>, // Danh sách các accounts được approved để transfer NFT Lootbox này
-    pub next_approval_id: u64,
 }

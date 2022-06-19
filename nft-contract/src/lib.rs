@@ -4,15 +4,14 @@ use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, ext_contract, log, near_bindgen, AccountId, Balance, CryptoHash, Gas, PanicOnDefault,
-    Promise, PromiseOrValue, PromiseResult,
+    env, ext_contract, log, near_bindgen, serde_json, AccountId, Balance, CryptoHash, Gas,
+    PanicOnDefault, Promise, PromiseOrValue, PromiseResult,
 };
 use std::collections::HashMap;
 // use std::time::{SystemTime, UNIX_EPOCH};
 use near_sdk::Timestamp;
 
 const DEFAULT_TOKEN_ID: u32 = 1000000000; // MAX u32 = 4294967295
-const DEFAULT_LOOTBOX_NFT_ID: u32 = 1000000000; // MAX u32 = 4294967295
 
 pub type CollectionId = u32;
 pub type CollectionName = String;
@@ -58,20 +57,17 @@ pub struct NFTContract {
     pub owner_id: AccountId, // Chủ sở hữu của Contract
     pub collections_per_owner: LookupMap<AccountId, UnorderedSet<CollectionName>>, // Lưu danh sách NFT Collections mà user sở hữu
     pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>, // Lưu danh sách NFT mà user sở hữu
-    pub lootbox_nfts_per_owner: LookupMap<AccountId, UnorderedSet<LootboxNftId>>, // Lưu danh sách NFT mà user sở hữu
     pub collections_by_name: UnorderedMap<CollectionName, Collection>, // Danh sách tất cả Collections của Contract
     pub collections_by_id: UnorderedMap<CollectionId, Collection>, // Danh sách tất cả Collections của Contract
     pub schemas_by_id: UnorderedMap<SchemaId, Schema>, // Danh sách tất cả Schemas của Contract
     pub templates_by_id: UnorderedMap<TemplateId, Template>, // Danh sách tất cả Templates của Contract
-    pub token_by_template_id_counter: UnorderedMap<TemplateId, TokenId>, // Đếm stt hiện tại của từng Template
+    pub token_by_template_id_counter: UnorderedMap<TemplateId, TokenId>, // Đếm stt hiện tại của từng NFT trong Template
     pub tokens_by_id: UnorderedMap<TokenId, Token>, // Danh sách tất cả NFT Tokens của Contract
     pub lootboxes_by_id: UnorderedMap<LootboxId, Lootbox>, // Danh sách tất cả Lootboxs của Contract
-    pub lootbox_nft_by_lootbox_id_counter: UnorderedMap<LootboxId, LootboxNftId>, // Đếm stt hiện tại của từng Template
-    pub lootbox_nfts_by_id: UnorderedMap<LootboxNftId, LootboxNft>, // Danh sách tất cả NFTs dạng Lootbox của Contract
-    pub lootbox_id_counter: u32,                    // Auto increment Lootbox id
+    pub lootbox_nft_by_lootbox_id_counter: UnorderedMap<LootboxId, LootboxNftId>, // Đếm stt hiện tại của từng Lootbox NFT trong Lootbox
+    pub lootbox_id_counter: u32, // Auto increment Lootbox id
     pub drops_by_id: UnorderedMap<DropId, DropSale>, // Danh sách tất cả Lootboxs của Contract
     pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>, // Mapping token id với token metadata
-    pub lootbox_nft_metadata_by_id: UnorderedMap<LootboxNftId, TokenMetadata>, // Mapping lootbox nft id với token metadata
     pub metadata: LazyOption<NFTContractMetadata>,
 }
 
@@ -79,7 +75,6 @@ pub struct NFTContract {
 pub enum StorageKey {
     CollectionsPerOwnerKey,
     TokensPerOwnerKey,
-    LootboxNftsPerOwnerKey,
     CollectionsPerOwnerInnerKey {
         account_id_hash: CryptoHash, // Để đảm bảo các account_id không trùng nhau
     },
@@ -97,10 +92,8 @@ pub enum StorageKey {
     TokensByIdKey,
     LootboxesByIdKey,
     LootboxNftByLootboxIdCounter,
-    LootboxNftsByIdKey,
     DropsByIdKey,
     TokenMetadataByIdKey,
-    LootboxNftMetadataByIdKey,
     ContractMetadataKey,
 }
 
@@ -114,7 +107,6 @@ impl NFTContract {
                 StorageKey::CollectionsPerOwnerKey.try_to_vec().unwrap(),
             ),
             tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwnerKey.try_to_vec().unwrap()),
-            lootbox_nfts_per_owner: LookupMap::new(StorageKey::LootboxNftsPerOwnerKey.try_to_vec().unwrap()),
             collections_by_id: UnorderedMap::new(
                 StorageKey::CollectionsByIdKey.try_to_vec().unwrap(),
             ),
@@ -123,18 +115,20 @@ impl NFTContract {
             ),
             schemas_by_id: UnorderedMap::new(StorageKey::SchemasByIdKey.try_to_vec().unwrap()),
             templates_by_id: UnorderedMap::new(StorageKey::TemplatesByIdKey.try_to_vec().unwrap()),
-            token_by_template_id_counter: UnorderedMap::new(StorageKey::TokenByTemplateIdCounter.try_to_vec().unwrap()),
+            token_by_template_id_counter: UnorderedMap::new(
+                StorageKey::TokenByTemplateIdCounter.try_to_vec().unwrap(),
+            ),
             tokens_by_id: UnorderedMap::new(StorageKey::TokensByIdKey.try_to_vec().unwrap()),
             lootboxes_by_id: UnorderedMap::new(StorageKey::LootboxesByIdKey.try_to_vec().unwrap()),
-            lootbox_nft_by_lootbox_id_counter: UnorderedMap::new(StorageKey::LootboxNftByLootboxIdCounter.try_to_vec().unwrap()),
-            lootbox_nfts_by_id: UnorderedMap::new(StorageKey::LootboxNftsByIdKey.try_to_vec().unwrap()),
+            lootbox_nft_by_lootbox_id_counter: UnorderedMap::new(
+                StorageKey::LootboxNftByLootboxIdCounter
+                    .try_to_vec()
+                    .unwrap(),
+            ),
             lootbox_id_counter: 0,
             drops_by_id: UnorderedMap::new(StorageKey::DropsByIdKey.try_to_vec().unwrap()),
             token_metadata_by_id: UnorderedMap::new(
                 StorageKey::TokenMetadataByIdKey.try_to_vec().unwrap(),
-            ),
-            lootbox_nft_metadata_by_id: UnorderedMap::new(
-                StorageKey::LootboxNftMetadataByIdKey.try_to_vec().unwrap(),
             ),
             metadata: LazyOption::new(
                 StorageKey::ContractMetadataKey.try_to_vec().unwrap(),

@@ -284,7 +284,7 @@ impl NFTContract {
 
     // Lấy danh sách tất cả Drop Sale trong Contract
     pub fn get_all_drops(&self, from_index: Option<u64>, limit: Option<u64>) -> Vec<DropSale> {
-        // Duyệt tất cả các keys -> Trả về Template
+        // Duyệt tất cả các keys -> Trả về Drop
         self.drops_by_id
             .iter()
             .skip(from_index.unwrap_or(0) as usize)
