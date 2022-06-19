@@ -236,6 +236,8 @@ impl NFTContract {
         from_index: Option<u64>,
         limit: Option<u64>,
     ) -> Vec<Lootbox> {
+        let mut count = 0;
+
         // Check collection id có tồn tại không
         assert!(
             self.collections_by_name.get(&collection_name).is_some(),
@@ -253,9 +255,18 @@ impl NFTContract {
             .map(|lootbox_id| self.lootboxes_by_id.get(&lootbox_id).unwrap())
             .collect();
 
+        // If limit = 0 -> Return empty Array
+        if limit.unwrap() == 0 {
+            return result;
+        }
+        
         for lootbox in lootboxes_set_for_owner {
             if lootbox.collection_name == collection_name {
                 result.push(lootbox);
+                count += 1;
+            }
+            if count == limit.unwrap_or(10) {
+                break;
             }
         }
         result

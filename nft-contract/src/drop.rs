@@ -300,6 +300,8 @@ impl NFTContract {
         from_index: Option<u64>,
         limit: Option<u64>,
     ) -> Vec<DropSale> {
+        let mut count = 0;
+        
         // Check collection id có tồn tại không
         assert!(
             self.collections_by_name.get(&collection_name).is_some(),
@@ -317,9 +319,18 @@ impl NFTContract {
             .map(|drop_id| self.drops_by_id.get(&drop_id).unwrap())
             .collect();
 
+        // If limit = 0 -> Return empty Array
+        if limit.unwrap() == 0 {
+            return result;
+        }
+
         for drop in drops_set_for_owner {
             if drop.collection_name == collection_name {
                 result.push(drop);
+                count += 1;
+            }
+            if count == limit.unwrap_or(10) {
+                break;
             }
         }
         result
