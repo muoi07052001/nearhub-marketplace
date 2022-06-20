@@ -42,13 +42,13 @@ near call nearhub-nft.duongnh.testnet new_default_metadata '{"owner_id": "duongn
 5. View list of Collections (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
 
    ```
-   near view nearhub-nft.duongnh.testnet get_all_collections '{"from_index": 0, "limit": 10}'
+   near view nearhub-nft.duongnh.testnet get_all_collections '{"from_index": "0", "limit": 10}'
    ```
 
 6. View list of Collections (with pagination) of 1 account: `duongnh.testnet` (`from_index`: String, `limit`: integer)
 
    ```
-   near view nearhub-nft.duongnh.testnet get_all_collections_for_owner '{"account_id": "duongnh.testnet", "from_index": 0, "limit": 10}'
+   near view nearhub-nft.duongnh.testnet get_all_collections_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
    ```
 
 7. View list of Collections by Collection Name (All the Collections that has Name contains the `search_string`)
@@ -81,13 +81,13 @@ near view nearhub-nft.duongnh.testnet schema_supply_by_collection '{"collection_
 12. View list of Schemas (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
 
     ```
-    near view nearhub-nft.duongnh.testnet get_all_schemas '{"from_index": 0, "limit": 10}'
+    near view nearhub-nft.duongnh.testnet get_all_schemas '{"from_index": "0", "limit": 10}'
     ```
 
 13. View list of Schemas (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
 
     ```
-    near view nearhub-nft.duongnh.testnet get_all_schemas_by_collection '{"collection_name": "Game", "from_index": 0, "limit": 10}'
+    near view nearhub-nft.duongnh.testnet get_all_schemas_by_collection '{"collection_name": "Game", "from_index": "0", "limit": 10}'
     ```
 
 14. View list of Schemas by Schema Name (All the Schemas that has Name contains the `search_string`)
@@ -120,13 +120,13 @@ near view nearhub-nft.duongnh.testnet template_supply_by_collection '{"collectio
 18. View list of Templates (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
 
 ```
-near view nearhub-nft.duongnh.testnet get_all_templates '{"from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet get_all_templates '{"from_index": "0", "limit": 10}'
 ```
 
 19. View list of Templates (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
 
 ```
-near view nearhub-nft.duongnh.testnet get_all_templates_by_collection '{"collection_name": "Game", "from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet get_all_templates_by_collection '{"collection_name": "Game", "from_index": "0", "limit": 10}'
 ```
 
 20. Get Template by Template Id
@@ -242,13 +242,13 @@ near view nearhub-nft.duongnh.testnet lootbox_supply_by_collection '{"collection
 29. View list of Lootboxes (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
 
 ```
-near view nearhub-nft.duongnh.testnet get_all_lootboxes '{"from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet get_all_lootboxes '{"from_index": "0", "limit": 10}'
 ```
 
 30. View list of Lootboxes (with pagination) of 1 Collection: `Game` (`from_index`: String, `limit`: integer)
 
 ```
-near view nearhub-nft.duongnh.testnet get_all_lootboxes_by_collection '{"collection_name": "Game", "from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet get_all_lootboxes_by_collection '{"collection_name": "Game", "from_index": "0", "limit": 10}'
 ```
 
 31. Unbox a Lootbox
@@ -282,13 +282,13 @@ near view nearhub-nft.duongnh.testnet drop_supply_by_collection '{"collection_na
 18. View list of Drop Sales (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
 
 ```
-near view nearhub-nft.duongnh.testnet get_all_drops '{"from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet get_all_drops '{"from_index": "0", "limit": 10}'
 ```
 
 19. View list of Drop Sales (with pagination) of 1 Collection: `duongnh.testnet` (`from_index`: String, `limit`: integer)
 
 ```
-near view nearhub-nft.duongnh.testnet get_all_drops_by_collection '{"collection_name": "Game", "from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet get_all_drops_by_collection '{"collection_name": "Game", "from_index": "0", "limit": 10}'
 ```
 
 20. Get Drop Sale by Drop Id
