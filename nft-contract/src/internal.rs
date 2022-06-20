@@ -258,7 +258,15 @@ impl NFTContract {
                 title: Some(template.immutable_data.name.clone()),
                 description: None,
                 media: template.immutable_data.img.clone(),
-                media_hash: None,
+                media_hash: Some(Base64VecU8::from(
+                    template
+                        .immutable_data
+                        .img
+                        .clone()
+                        .unwrap()
+                        .as_bytes()
+                        .to_vec(),
+                )),
                 copies: Some(template.max_supply as u64),
                 issued_at: Some(env::block_timestamp()),
                 expires_at: None,
@@ -353,7 +361,9 @@ impl NFTContract {
                 title: Some(lootbox.lootbox_name), // TODO: Define name in display_data
                 description: None,
                 media: lootbox.img.clone(),
-                media_hash: None,
+                media_hash: Some(Base64VecU8::from(
+                    lootbox.img.clone().unwrap().as_bytes().to_vec(),
+                )),
                 copies: None,
                 issued_at: Some(env::block_timestamp()),
                 expires_at: None,

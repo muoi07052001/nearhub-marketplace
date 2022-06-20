@@ -102,7 +102,7 @@ near view nearhub-nft.duongnh.testnet schema_supply_by_collection '{"collection_
 15. Create a Template:
 
 ```
-near call nearhub-nft.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "immutable_data": {"name": "Lightsaber", "img": "", "rarity": "uncommon", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "immutable_data": {"name": "Lightsaber", "img": "https://ipfs.io/ipfs/hash", "rarity": "uncommon", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 16. View the total number of Templates of the Contract:
@@ -217,9 +217,9 @@ near view nearhub-nft.duongnh.testnet nft_is_approved '{"token_id": 1000000000, 
 26. Create a Lootbox: (Belongs to a Collection)
 
 ```
-near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "https://ipfs.io/ipfs/hash", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
 
-near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "https://ipfs.io/ipfs/hash", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 27. Mint a Lootbox NFT:
