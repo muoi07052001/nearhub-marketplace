@@ -320,7 +320,7 @@ impl NFTContract {
             .collect();
 
         // If limit = 0 -> Return empty Array
-        if limit.unwrap() == 0 {
+        if limit.unwrap_or(0) == 0 {
             return result;
         }
 
