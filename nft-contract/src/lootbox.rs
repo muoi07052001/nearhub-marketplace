@@ -6,18 +6,22 @@ impl NFTContract {
     #[payable]
     pub fn create_lootbox(
         &mut self,
-        lootbox_name: String,
-        description: String,
+        // lootbox_name: String,
+        // description: String,
         collection_name: CollectionName,
         schema_id: SchemaId,
-        img: Option<String>,
-        unlock_time: Timestamp,
-        display_data: Option<String>,
-        config: LootboxConfig,
-    ) -> Lootbox {
+        // img: Option<String>,
+        transferable: bool,
+        burnable: bool,
+        max_supply: u32,
+        immutable_data: ImmutableData,
+        unlock_time: Option<Timestamp>,
+        // display_data: Option<String>,
+        config: Option<LootboxConfig>,
+    ) -> Template {
         let before_storage_usage = env::storage_usage(); // Dùng để tính toán lượng near thừa khi deposit
 
-        let lootbox_id = self.lootboxes_by_id.len() as u32;
+        let lootbox_id = self.templates_by_id.len() as u32;
 
         self.lootbox_nft_by_lootbox_id_counter
             .insert(&lootbox_id, &0); // Khi tạo Lootbox -> Cho stt counter = 0
@@ -38,7 +42,7 @@ impl NFTContract {
         );
 
         // Check từng template_id trong `config` có thuộc collection_id này không
-        for slot in config.iter() {
+        for slot in config.clone().unwrap().iter() {
             for outcome in slot.outcomes.iter() {
                 assert!(
                     self.templates_by_id.get(&outcome.template_id).is_some(),
@@ -55,22 +59,24 @@ impl NFTContract {
             .expect("Schema does not exist");
 
         // Tạo Lootbox mới
-        let new_lootbox = Lootbox {
-            lootbox_id,
-            lootbox_name,
-            img,
-            description,
+        let new_lootbox = Template {
+            template_id: lootbox_id,
             collection_id: collection_of_lootbox_id,
             collection_name,
             schema_id,
             schema_name: schema_of_lootbox.schema_name,
+            transferable,
+            burnable,
+            max_supply,
+            issued_supply: 0,
+            immutable_data,
+            is_lootbox: true,
             unlock_time,
-            display_data,
             config,
         };
 
-        // Insert lootbox mới vào lootboxes_by_id
-        self.lootboxes_by_id.insert(&lootbox_id, &new_lootbox);
+        // Insert lootbox mới vào templates_by_id
+        self.templates_by_id.insert(&lootbox_id, &new_lootbox);
 
         // Luợng data storage sử dụng = after_storage_usage - before_storage_usage
         let after_storage_usage = env::storage_usage();
@@ -91,7 +97,7 @@ impl NFTContract {
 
         // Check if the person who call this function is the Collection's owner or not
         let lootbox = self
-            .lootboxes_by_id
+            .templates_by_id
             .get(&lootbox_id)
             .expect("Lootbox does not exist");
         let collection = self
@@ -102,6 +108,12 @@ impl NFTContract {
             collection.owner_id,
             env::predecessor_account_id(),
             "Only this Lootbox's owner can call this function"
+        );
+
+        // Check if the template is of kind lootbox or not
+        assert_eq!(
+            lootbox.is_lootbox, true,
+            "This function can only be called on a Lootbox"
         );
 
         self.internal_lootbox_nft_mint(lootbox_id, mint_number, receiver_id);
@@ -233,7 +245,17 @@ impl NFTContract {
     // Lấy tổng số Lootboxes đang có trong contract
     pub fn lootbox_total_supply(&self) -> U128 {
         // Đếm tổng số lượng id đang có trong token_metadata_by_id
-        U128(self.lootboxes_by_id.len() as u128)
+
+        let template_set: Vec<Template> = self.templates_by_id.values().collect();
+        let mut lootbox_set = Vec::<Template>::new();
+
+        for template in template_set {
+            if template.is_lootbox == true {
+                lootbox_set.push(template);
+            }
+        }
+
+        U128(lootbox_set.len() as u128)
     }
 
     // Lấy tổng số Lootboxes đang có của Collection nào đó
@@ -246,75 +268,18 @@ impl NFTContract {
 
         let mut count = 0;
 
-        let lootboxes_set_by_collection: Vec<Lootbox> = self
-            .lootboxes_by_id
+        let templates_set_by_collection: Vec<Template> = self
+            .templates_by_id
             .keys()
-            .map(|lootbox_id| self.lootboxes_by_id.get(&lootbox_id).unwrap())
+            .map(|template_id| self.templates_by_id.get(&template_id).unwrap())
             .collect();
 
-        for lootbox in lootboxes_set_by_collection {
-            if lootbox.collection_name == collection_name {
+        for template in templates_set_by_collection {
+            if template.collection_name == collection_name && template.is_lootbox == true {
                 count += 1;
             }
         }
 
         U128(count)
-    }
-
-    // Lấy danh sách tất cả Lootboxes trong Contract
-    pub fn get_all_lootboxes(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<Lootbox> {
-        let start = u128::from(from_index.unwrap_or(U128(0)));
-        // Duyệt tất cả các keys -> Trả về Lootbox
-        self.lootboxes_by_id
-            .iter()
-            .skip(start as usize)
-            .take(limit.unwrap_or(10) as usize)
-            .map(|(lootbox_id, _lootbox)| self.lootboxes_by_id.get(&lootbox_id).unwrap())
-            .collect()
-    }
-
-    // Lấy danh sách Lootbox của Collection nào đó (có pagination)
-    pub fn get_all_lootboxes_by_collection(
-        &self,
-        collection_name: CollectionName,
-        from_index: Option<U128>,
-        limit: Option<u64>,
-    ) -> Vec<Lootbox> {
-        let mut count = 0;
-
-        // Check collection id có tồn tại không
-        assert!(
-            self.collections_by_name.get(&collection_name).is_some(),
-            "Collection does not exist"
-        );
-
-        let mut result = Vec::<Lootbox>::new();
-
-        let start = u128::from(from_index.unwrap_or(U128(0)));
-
-        // Duyệt tất cả các keys -> Trả về Collection
-        let lootboxes_set_for_owner: Vec<Lootbox> = self
-            .lootboxes_by_id
-            .keys()
-            .skip(start as usize) // Pagination
-            .take(limit.unwrap_or(10) as usize) // Pagination
-            .map(|lootbox_id| self.lootboxes_by_id.get(&lootbox_id).unwrap())
-            .collect();
-
-        // If limit = 0 -> Return empty Array
-        if limit.is_some() && limit.unwrap() == 0 {
-            return result;
-        }
-
-        for lootbox in lootboxes_set_for_owner {
-            if lootbox.collection_name == collection_name {
-                result.push(lootbox);
-                count += 1;
-            }
-            if count == limit.unwrap_or(10) {
-                break;
-            }
-        }
-        result
     }
 }

@@ -5,7 +5,7 @@ use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
     env, ext_contract, log, near_bindgen, serde_json, AccountId, Balance, CryptoHash, Gas,
-    PanicOnDefault, Promise, PromiseOrValue, PromiseResult,
+    PanicOnDefault, Promise, PromiseOrValue, PromiseResult
 };
 use std::collections::HashMap;
 // use std::time::{SystemTime, UNIX_EPOCH};
@@ -64,7 +64,7 @@ pub struct NFTContract {
     pub token_id_counter: u32,                               // Auto increment Token id
     pub token_by_template_id_counter: UnorderedMap<TemplateId, TokenId>, // Đếm stt hiện tại của từng NFT trong Template
     pub tokens_by_id: UnorderedMap<TokenId, Token>, // Danh sách tất cả NFT Tokens của Contract
-    pub lootboxes_by_id: UnorderedMap<LootboxId, Lootbox>, // Danh sách tất cả Lootboxs của Contract
+    // pub lootboxes_by_id: UnorderedMap<LootboxId, Lootbox>, // Danh sách tất cả Lootboxs của Contract
     pub lootbox_nft_by_lootbox_id_counter: UnorderedMap<LootboxId, LootboxNftId>, // Đếm stt hiện tại của từng Lootbox NFT trong Lootbox
     pub drops_by_id: UnorderedMap<DropId, DropSale>, // Danh sách tất cả Lootboxs của Contract
     pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>, // Mapping token id với token metadata
@@ -90,7 +90,7 @@ pub enum StorageKey {
     TemplatesByIdKey,
     TokenByTemplateIdCounter,
     TokensByIdKey,
-    LootboxesByIdKey,
+    // LootboxesByIdKey,
     LootboxNftByLootboxIdCounter,
     DropsByIdKey,
     TokenMetadataByIdKey,
@@ -120,7 +120,7 @@ impl NFTContract {
                 StorageKey::TokenByTemplateIdCounter.try_to_vec().unwrap(),
             ),
             tokens_by_id: UnorderedMap::new(StorageKey::TokensByIdKey.try_to_vec().unwrap()),
-            lootboxes_by_id: UnorderedMap::new(StorageKey::LootboxesByIdKey.try_to_vec().unwrap()),
+            // lootboxes_by_id: UnorderedMap::new(StorageKey::LootboxesByIdKey.try_to_vec().unwrap()),
             lootbox_nft_by_lootbox_id_counter: UnorderedMap::new(
                 StorageKey::LootboxNftByLootboxIdCounter
                     .try_to_vec()

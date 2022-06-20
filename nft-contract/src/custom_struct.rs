@@ -54,6 +54,11 @@ pub struct Template {
     pub max_supply: u32,               // Tổng số NFT cung cấp
     pub issued_supply: u32,            // Số NFT đã cung cấp
     pub immutable_data: ImmutableData, // Những attribute trong Schema mà được fixed sẵn giá trị
+
+    // Extra data for Lootbox Template
+    pub is_lootbox: bool,               // Seperate Lootbot vs normal Template
+    pub unlock_time: Option<Timestamp>, // Thời điểm cho phép mở Lootbox
+    pub config: Option<LootboxConfig>,  // Config độ random để ra các loại NFT
 }
 
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
@@ -65,36 +70,36 @@ pub struct ImmutableData {
     pub extra_immutable_data: Option<String>, // Stringified JSON chứa các thông tin fix sẵn dựa theo Schema gửi từ Front-end lên
 }
 
-// ----------------------------------- Lootbox Struct -----------------------------------
-#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Lootbox {
-    pub lootbox_id: LootboxId,        // Id của Lootbox
-    pub lootbox_name: String,         // Tên của Lootbox
-    pub img: Option<String>,          // Link to image of the Lootbox
-    pub description: String,          // Description của Lootbox
-    pub collection_id: CollectionId,  // Id của Collection mà Lootbox thuộc vào
-    pub collection_name: String,      // Collection mà Lootbox thuộc vào
-    pub schema_id: SchemaId,          // Id của Schema mà Lootbox thuộc vào
-    pub schema_name: SchemaName,      // Tên Schema mà Lootbox thuộc vào
-    pub unlock_time: Timestamp,       // Thời điểm cho phép mở Lootbox
-    pub display_data: Option<String>, // Dữ liệu cần thiết hiển thị cho Front-end (stringified JSON)
-    pub config: LootboxConfig,        // Config độ random để ra các loại NFT
-}
+// // ----------------------------------- Lootbox Struct -----------------------------------
+// #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
+// #[serde(crate = "near_sdk::serde")]
+// pub struct Lootbox {
+//     pub lootbox_id: LootboxId,        // Id của Lootbox
+//     pub lootbox_name: String,         // Tên của Lootbox
+//     pub img: Option<String>,          // Link to image of the Lootbox
+//     pub description: String,          // Description của Lootbox
+//     pub collection_id: CollectionId,  // Id của Collection mà Lootbox thuộc vào
+//     pub collection_name: String,      // Collection mà Lootbox thuộc vào
+//     pub schema_id: SchemaId,          // Id của Schema mà Lootbox thuộc vào
+//     pub schema_name: SchemaName,      // Tên Schema mà Lootbox thuộc vào
+//     pub unlock_time: Timestamp,       // Thời điểm cho phép mở Lootbox
+//     pub display_data: Option<String>, // Dữ liệu cần thiết hiển thị cho Front-end (stringified JSON)
+//     pub config: LootboxConfig,        // Config độ random để ra các loại NFT
+// }
 
 // 1 mảng chứa các Slot NFT
 // Độ dài mảng là số NFT chứa trong Lootbox
 // Mỗi Slot có config tỷ lệ ra TemplateId khác nhau
 pub type LootboxConfig = Vec<Slot>;
 
-#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Slot {
     pub total_odds: u32,        // Giới hạn trên của số random
     pub outcomes: Vec<Outcome>, // Mảng config: Template A tỉ lệ bn, Template B tỉ lệ bn
 }
 
-#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Outcome {
     pub template_id: TemplateId, // Tỷ lệ roll ra template id nào

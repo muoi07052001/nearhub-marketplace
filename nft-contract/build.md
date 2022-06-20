@@ -102,7 +102,7 @@ near view nearhub-nft.duongnh.testnet schema_supply_by_collection '{"collection_
 15. Create a Template:
 
 ```
-near call nearhub-nft.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "immutable_data": {"name": "Lightsaber", "img": "https://ipfs.io/ipfs/hash", "rarity": "uncommon", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_template '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "immutable_data": {"name": "Lightsaber", "img": "", "rarity": "uncommon", "extra_immutable_data": "{\"attack\": \"10\"}"}}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 16. View the total number of Templates of the Contract:
@@ -169,7 +169,6 @@ near view nearhub-nft.duongnh.testnet nft_supply_for_owner '{"account_id": "duon
 near view nearhub-nft.duongnh.testnet nft_tokens '{"from_index": "0", "limit": 10}'
 ```
 
-
 26. View list of NFTs of an account `duongnh.testnet`
 
 ```
@@ -217,12 +216,13 @@ near view nearhub-nft.duongnh.testnet nft_is_approved '{"token_id": 1000000000, 
 26. Create a Lootbox: (Belongs to a Collection)
 
 ```
-near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "https://ipfs.io/ipfs/hash", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_lootbox '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "immutable_data": {"name": "Lootbox", "img": "https://ipfs.io/ipfs/hash", "rarity": "uncommon", "extra_immutable_data": ""}, "unlock_time": 0, "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}]}' --deposit 0.1 --accountId duongnh.testnet
 
-near call nearhub-nft.duongnh.testnet create_lootbox '{"lootbox_name": "Random Weapon", "description": "This will gives a lot of weapons", "collection_name": "Game", "schema_id": 0, "img": "https://ipfs.io/ipfs/hash", "unlock_time": 0, "display_data": "Game Lootbox", "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
+near call nearhub-nft.duongnh.testnet create_lootbox '{"collection_name": "Game", "schema_id": 0, "transferable": true, "burnable": true, "max_supply": 10, "immutable_data": {"name": "Test Lootbox", "img": "https://ipfs.io/ipfs/hash", "rarity": "rare", "extra_immutable_data": ""}, "unlock_time": 0, "config": [{"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 50}, {"template_id": 1, "odds": 100}]}, {"total_odds": 100, "outcomes": [{"template_id": 0, "odds": 30}, {"template_id": 1, "odds": 100}]}, {"total_odds": 200, "outcomes": [{"template_id": 1, "odds": 30}, {"template_id": 2, "odds": 100}, {"template_id": 3, "odds": 200}]}]}' --deposit 0.1 --accountId duongnh.testnet
 ```
 
 27. Mint a Lootbox NFT:
+
 ```
 near call nearhub-nft.duongnh.testnet mint_lootbox '{"lootbox_id": 0, "mint_number": 1, "receiver_id": "duongnh.testnet"}' --deposit 0.1 --accountId duongnh.testnet
 ```
@@ -237,18 +237,6 @@ near view nearhub-nft.duongnh.testnet lootbox_total_supply
 
 ```
 near view nearhub-nft.duongnh.testnet lootbox_supply_by_collection '{"collection_name": "Game"}'
-```
-
-29. View list of Lootboxes (with pagination) of the Contract: (`from_index`: String, `limit`: integer)
-
-```
-near view nearhub-nft.duongnh.testnet get_all_lootboxes '{"from_index": "0", "limit": 10}'
-```
-
-30. View list of Lootboxes (with pagination) of 1 Collection: `Game` (`from_index`: String, `limit`: integer)
-
-```
-near view nearhub-nft.duongnh.testnet get_all_lootboxes_by_collection '{"collection_name": "Game", "from_index": "0", "limit": 10}'
 ```
 
 31. Unbox a Lootbox
@@ -298,26 +286,31 @@ near view nearhub-nft.duongnh.testnet get_drop_by_id '{"drop_id": 0}'
 ```
 
 34. Add 1 account to Drop Sale's Whitelist -> They can purchase the Drop Sale
+
 ```
 near call nearhub-nft.duongnh.testnet drop_add_whitelist_account '{"drop_id": 0, "account_ids": ["zuongnh.testnet"]}' --accountId duongnh.testnet --deposit 0.01
 ```
 
 35. Check if an account in the Drop Sale's Whitelist
+
 ```
 near view nearhub-nft.duongnh.testnet drop_is_approved '{"drop_id": 0, "approved_account_id": "duongnh.testnet", "approval_id": 0}'
 ```
 
 36. Remove an account from the Drop Sale's Whitelist
+
 ```
 near call nearhub-nft.duongnh.testnet drop_revoke '{"drop_id": 0, "account_id": "duongnh.testnet"}' --accountId duongnh.testnet --depositYocto 1
 ```
 
 37. Remove all accounts from the Drop Sale's Whitelist
+
 ```
 near call nearhub-nft.duongnh.testnet drop_revoke_all '{"drop_id": 0}' --accountId duongnh.testnet --depositYocto 1
 ```
 
 38. Claim the Drop Sale
+
 ```
 near call nearhub-nft.duongnh.testnet claim_drop '{"drop_id": 0, "claim_amount": 1}' --accountId zuongnh.testnet --deposit 1
 ```

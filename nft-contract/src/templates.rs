@@ -57,6 +57,9 @@ impl NFTContract {
             max_supply,
             issued_supply: 0,
             immutable_data,
+            is_lootbox: false,
+            unlock_time: None,
+            config: None,
         };
 
         // Insert template mới vào templates_by_id

@@ -329,9 +329,15 @@ impl NFTContract {
 
             // Get the information of the Lootbox
             let lootbox = self
-                .lootboxes_by_id
+                .templates_by_id
                 .get(&lootbox_id)
                 .expect("Not found Lootbox");
+
+            // Check if the template is of kind lootbox or not
+            assert_eq!(
+                lootbox.is_lootbox, true,
+                "This function can only be called on a Lootbox"
+            );
 
             // Tạo NFT mới
             let lootbox_nft = Token {
@@ -342,7 +348,7 @@ impl NFTContract {
                 collection_name: lootbox.collection_name,
                 schema_id: lootbox.schema_id,
                 schema_name: lootbox.schema_name,
-                template_id: lootbox.lootbox_id, // Lootbox id
+                template_id: lootbox.template_id, // Lootbox id
                 approved_account_ids: HashMap::default(),
                 next_approval_id: 0,
             };
@@ -358,16 +364,22 @@ impl NFTContract {
 
             // Add token metadata due to Template's immutable data
             let metadata = TokenMetadata {
-                title: Some(lootbox.lootbox_name), // TODO: Define name in display_data
+                title: Some(lootbox.immutable_data.name.clone()), // TODO: Define name in display_data
                 description: None,
-                media: lootbox.img.clone(),
+                media: lootbox.immutable_data.img.clone(),
                 media_hash: Some(Base64VecU8::from(
-                    lootbox.img.clone().unwrap().as_bytes().to_vec(),
+                    lootbox
+                        .immutable_data
+                        .img
+                        .clone()
+                        .unwrap()
+                        .as_bytes()
+                        .to_vec(),
                 )),
                 copies: None,
                 issued_at: Some(env::block_timestamp()),
                 expires_at: None,
-                starts_at: Some(lootbox.unlock_time),
+                starts_at: lootbox.unlock_time,
                 updated_at: None,
                 extra: Some(serde_json::to_string(&lootbox.config).unwrap()),
                 reference: None,
