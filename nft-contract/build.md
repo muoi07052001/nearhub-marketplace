@@ -166,14 +166,14 @@ near view nearhub-nft.duongnh.testnet nft_supply_for_owner '{"account_id": "duon
 25. View list of NFTs of the Contract
 
 ```
-near view nearhub-nft.duongnh.testnet nft_tokens '{"from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet nft_tokens '{"from_index": "0", "limit": 10}'
 ```
 
 
 26. View list of NFTs of an account `duongnh.testnet`
 
 ```
-near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": 0, "limit": 10}'
+near view nearhub-nft.duongnh.testnet nft_tokens_for_owner '{"account_id": "duongnh.testnet", "from_index": "0", "limit": 10}'
 ```
 
 ---

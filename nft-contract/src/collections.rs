@@ -94,14 +94,15 @@ impl NFTContract {
     // Lấy danh sách tất cả Collections trong Contract
     pub fn get_all_collections(
         &self,
-        from_index: Option<u64>,
+        from_index: Option<U128>,
         limit: Option<u64>,
     ) -> Vec<Collection> {
+        let start = u128::from(from_index.unwrap_or(U128(0)));
         // Duyệt tất cả các keys -> Trả về Collection
         // self.collections_by_id.values_as_vector().to_vec()
         self.collections_by_name
             .iter()
-            .skip(from_index.unwrap_or(0) as usize)
+            .skip(start as usize)
             .take(limit.unwrap_or(10) as usize)
             .map(|(collection_name, _collection)| {
                 self.collections_by_name.get(&collection_name).unwrap()
@@ -113,7 +114,7 @@ impl NFTContract {
     pub fn get_all_collections_for_owner(
         &self,
         account_id: AccountId,
-        from_index: Option<u64>,
+        from_index: Option<U128>,
         limit: Option<u64>,
     ) -> Vec<Collection> {
         let collection_keys = self.collections_per_owner.get(&account_id);
@@ -124,11 +125,12 @@ impl NFTContract {
             return vec![];
         };
 
+        let start = u128::from(from_index.unwrap_or(U128(0)));
 
         // Duyệt tất cả các keys -> Trả về Collection
         keys.as_vector()
             .iter()
-            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .skip(start as usize) // Pagination
             .take(limit.unwrap_or(10) as usize) // Pagination
             .map(|collection_name| self.collections_by_name.get(&collection_name).unwrap())
             .collect()

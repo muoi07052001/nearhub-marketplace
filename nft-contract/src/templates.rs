@@ -99,11 +99,12 @@ impl NFTContract {
     }
 
     // Lấy danh sách tất cả Templates trong Contract
-    pub fn get_all_templates(&self, from_index: Option<u64>, limit: Option<u64>) -> Vec<Template> {
+    pub fn get_all_templates(&self, from_index: Option<U128>, limit: Option<u64>) -> Vec<Template> {
+        let start = u128::from(from_index.unwrap_or(U128(0)));
         // Duyệt tất cả các keys -> Trả về Template
         self.templates_by_id
             .iter()
-            .skip(from_index.unwrap_or(0) as usize)
+            .skip(start as usize)
             .take(limit.unwrap_or(10) as usize)
             .map(|(template_id, _template)| self.templates_by_id.get(&template_id).unwrap())
             .collect()
@@ -113,7 +114,7 @@ impl NFTContract {
     pub fn get_all_templates_by_collection(
         &self,
         collection_name: CollectionName,
-        from_index: Option<u64>,
+        from_index: Option<U128>,
         limit: Option<u64>,
     ) -> Vec<Template> {
         let mut count = 0;
@@ -123,16 +124,18 @@ impl NFTContract {
 
         let mut result = Vec::<Template>::new();
 
+        let start = u128::from(from_index.unwrap_or(U128(0)));
+
         // Duyệt tất cả các keys -> Trả về Collection
         let templates_set_for_owner: Vec<Template> = self
             .templates_by_id
             .keys()
-            .skip(from_index.unwrap_or(0) as usize) // Pagination
+            .skip(start as usize) // Pagination
             .map(|template_id| self.templates_by_id.get(&template_id).unwrap())
             .collect();
 
         // If limit = 0 -> Return empty Array
-        if limit.unwrap_or(0) == 0 {
+        if limit.is_some() && limit.unwrap() == 0 {
             return result;
         }
 
