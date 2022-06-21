@@ -302,7 +302,7 @@ impl NFTContract {
         limit: Option<u64>,
     ) -> Vec<DropSale> {
         let mut count = 0;
-        
+
         // Check collection id có tồn tại không
         assert!(
             self.collections_by_name.get(&collection_name).is_some(),
@@ -357,7 +357,10 @@ impl NFTContract {
             // Check if the claimer is in approved_account_ids?
             let approval = drop.approved_account_ids.get(&claimer_account);
             // If the account not in approved_account_ids -> Not whitelisted -> Error
-            assert!(approval.is_some(), "Claimer not in the Whitelist accounts");
+            assert!(
+                approval.is_some() || claimer_account == drop.owner_id,
+                "Claimer not in the Whitelist accounts"
+            );
         };
 
         // --- In case the Drop Sale is public ---
@@ -377,6 +380,7 @@ impl NFTContract {
                 "Cannot claim this Drop Sale during this time"
             );
         }
+        log!("Current time {}", claim_drop_timestamp);
 
         // Check sufficient amount or not (claim_amount < drop.max_supply - drop.issued_supply)
         assert!(

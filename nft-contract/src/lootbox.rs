@@ -155,7 +155,7 @@ impl NFTContract {
             "Only Lootbox can be unboxed"
         );
 
-        let collection_of_lootbox = self
+        let _collection_of_lootbox = self
             .collections_by_name
             .get(&lootbox_nft.collection_name)
             .expect("Collection does not exist");
@@ -163,7 +163,7 @@ impl NFTContract {
         // Check unbox must be call by Lootbox's owner
         assert_eq!(
             env::predecessor_account_id(),
-            collection_of_lootbox.owner_id,
+            lootbox_nft.owner_id,
             "Only owner of this lootbox nft can unbox it!"
         );
 
