@@ -168,12 +168,16 @@ impl NFTContract {
         );
 
         // Check current time is after lootbox.unlock_time or not
-        let unbox_time = env::block_timestamp(); // Claim drop timestamp
+        let unbox_time = env::block_timestamp(); // Claim drop timestamp in nanoseconds
+
+        let base: u64 = 10;
+
         log!("Current time: {}", unbox_time);
         if lootbox_nft_metadata.starts_at.is_some() {
             // If lootbox.unclock_time == 0 -> Can unbox at any time
+            let starts_at_nano = lootbox_nft_metadata.starts_at.unwrap() * base.pow(6); // Claim drop timestamp in milliseconds
             assert!(
-                unbox_time >= lootbox_nft_metadata.starts_at.unwrap(),
+                unbox_time >= starts_at_nano,
                 "Cannot unbox this Lootbox during this time"
             );
         }

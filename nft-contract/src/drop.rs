@@ -367,16 +367,22 @@ impl NFTContract {
 
         // Check current time is between drop.start_time and drop.end_time or not
         let claim_drop_timestamp = env::block_timestamp(); // Claim drop timestamp
+
+        let base: u64 = 10;
+
         if drop.end_time != 0 {
             // If drop.end_time != 0 -> Check both start_time and end_time
+            let end_time_nano = drop.end_time * base.pow(6); // Claim drop timestamp in milliseconds
+            let start_time_nano = drop.start_time * base.pow(6); // Claim drop timestamp in milliseconds
             assert!(
-                claim_drop_timestamp < drop.end_time && claim_drop_timestamp > drop.start_time,
+                claim_drop_timestamp < end_time_nano && claim_drop_timestamp > start_time_nano,
                 "Cannot claim this Drop Sale during this time"
             );
         } else if drop.end_time == 0 && drop.start_time != 0 {
             // If drop.end_time == 0 -> Only check start_time
+            let start_time_nano = drop.start_time * base.pow(6); // Claim drop timestamp in milliseconds
             assert!(
-                claim_drop_timestamp > drop.start_time,
+                claim_drop_timestamp > start_time_nano,
                 "Cannot claim this Drop Sale during this time"
             );
         }
